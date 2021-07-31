@@ -20,9 +20,16 @@ public class UDPConnection {
         public void process(String sentence);
     }
 
+    private String name = "Unnamed";
+
     private HashSet<Listener> listeners = new HashSet<>();
 
-    public UDPConnection(int udpPort) {
+    private UDPConnection(int udpPort) {
+        this.udpPort = udpPort;
+    }
+
+    public UDPConnection(String name, int udpPort) {
+        this.name = name;
         this.udpPort = udpPort;
     }
 
@@ -53,7 +60,7 @@ public class UDPConnection {
         try {
             final DatagramSocket socket = new DatagramSocket(udpPort);
             this.udpSocket = socket;
-            Thread udpListenerThread = new Thread("NMEA UDP Listener") {
+            Thread udpListenerThread = new Thread(name + " UDP Listener") {
                 public void run() {
                     setUdpConnected(true);
 
@@ -63,7 +70,7 @@ public class UDPConnection {
                     catch (SocketException e1) {
                         e1.printStackTrace();
                     }
-                    System.out.println("Listening to NMEA messages over UDP " + udpPort);
+                    System.out.println("Listening to " + name + " data over UDP " + udpPort);
                     while (connected && isUdpConnected) {
                         try {
                             DatagramPacket dp = new DatagramPacket(new byte[65507], 65507);
@@ -93,7 +100,7 @@ public class UDPConnection {
                             break;
                         }
                     }
-                    System.out.println("NMEA :: " + "Stop listening via UDP.");
+                    System.out.println(name + " :: " + "Stop listening via UDP.");
                     socket.close();
                     setUdpConnected(false);
                 };

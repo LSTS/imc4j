@@ -27,9 +27,17 @@ public class TCPClientConnection {
         public void process(String sentence);
     }
 
+    private String name = "Unnamed";
+
     private HashSet<Listener> listeners = new HashSet<>();
 
-    public TCPClientConnection(String tcpHost, int tcpPort) {
+    private TCPClientConnection(String tcpHost, int tcpPort) {
+        this.tcpHost = tcpHost;
+        this.tcpPort = tcpPort;
+    }
+
+    public TCPClientConnection(String name, String tcpHost, int tcpPort) {
+        this.name = name;
         this.tcpHost = tcpHost;
         this.tcpPort = tcpPort;
     }
@@ -61,7 +69,7 @@ public class TCPClientConnection {
         try {
             final Socket socket = new Socket();
             this.tcpSocket = socket;
-            Thread listener = new Thread("NMEA TCP Listener") {
+            Thread listener = new Thread(name + " TCP Listener") {
                 public void run() {
                     BufferedReader reader = null;
                     try {
@@ -92,7 +100,7 @@ public class TCPClientConnection {
                         
                         return;
                     }
-                    System.out.println("Listening to NMEA messages over TCP " + tcpHost + ":" + tcpPort);
+                    System.out.println("Listening to " + name +" data over TCP " + tcpHost + ":" + tcpPort);
                     while (connected && isTcpConnected && tcpSocket.isConnected()) {
                         try {
                             String sentence = reader.readLine();
@@ -121,7 +129,7 @@ public class TCPClientConnection {
                             break;
                         }
                     }
-                    System.out.println("TCP Socket closed.");
+                    System.out.println("TCP Socket closed for " + name + ".");
                     try {
                         socket.close();
                     }

@@ -282,14 +282,14 @@ public class DistressSurvey extends TimedFSM {
         print(sb.toString());
 
         if (aisByTCP) {
-            aisTxtTcp = new TCPClientConnection(aisHostAddr, aisHostPort);
+            aisTxtTcp = new TCPClientConnection("AIS NMEA", aisHostAddr, aisHostPort);
             aisTxtTcp.register(this::parseAISTxtSentence);
             aisTxtTcp.register(this::retransmitAISTxtSentence);
             aisTxtTcp.connect();
         }
         
         if (aisByUDP) {
-            aisTxtUdp = new UDPConnection(aisUdpHostPort);
+            aisTxtUdp = new UDPConnection("AIS NMEA", aisUdpHostPort);
             aisTxtUdp.register(this::parseAISTxtSentence);
             aisTxtUdp.connect();
         }
