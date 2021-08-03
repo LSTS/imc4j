@@ -29,6 +29,7 @@ import pt.lsts.backseat.distress.ais.AisCsvParser;
 import pt.lsts.backseat.distress.ais.AisCsvParser.DistressPosition;
 import pt.lsts.backseat.distress.net.TCPClientConnection;
 import pt.lsts.backseat.distress.net.UDPConnection;
+import pt.lsts.imc4j.annotations.Consume;
 import pt.lsts.imc4j.annotations.Parameter;
 import pt.lsts.imc4j.annotations.Periodic;
 import pt.lsts.imc4j.def.SpeedUnits;
@@ -36,8 +37,10 @@ import pt.lsts.imc4j.msg.Announce;
 import pt.lsts.imc4j.msg.EstimatedState;
 import pt.lsts.imc4j.msg.FollowRefState;
 import pt.lsts.imc4j.msg.Maneuver;
+import pt.lsts.imc4j.msg.Message;
 import pt.lsts.imc4j.msg.PlanDB;
 import pt.lsts.imc4j.msg.ReportControl;
+import pt.lsts.imc4j.msg.TextMessage;
 import pt.lsts.imc4j.util.AngleUtils;
 import pt.lsts.imc4j.util.ManeuversUtil;
 import pt.lsts.imc4j.util.PointIndex;
@@ -54,6 +57,7 @@ public class DistressSurvey extends TimedFSM {
     @SuppressWarnings("unused")
     private static final String PAYLOAD_TO_ACTIVATE_PATTERN = "(?i)(payload *?=[\\w- \\[\\]\\(\\)]+)((\\;)[\\w- \\[\\]\\(\\)]+)=[\\w- \\[\\]\\(\\)]+))*(\\; *)";
 
+    public static final String TEXT_MSG_CMD_PREFIX = "DISTRESS";
     public static final String PLAN_PATTERN_SUFFIX = "pattern";
     public static final String PLAN_REF_SUFFIX = "ref";
 
@@ -437,6 +441,18 @@ public class DistressSurvey extends TimedFSM {
         }
         else {
             print("NOT deactivating: " + pls);
+        }
+    }
+
+    @Consume
+    protected void on(TextMessage msg) {
+        //if (msg.src == remoteSrc) { To allow from outside
+        if (msg.dst == remoteSrc) {
+            String msgTxt = msg.text;
+            if (msgTxt.startsWith(TEXT_MSG_CMD_PREFIX + " ")) {
+                String txtToProcess = msgTxt.replaceFirst("^" + TEXT_MSG_CMD_PREFIX + " ", "");
+                parseAISTxtSentence(txtToProcess);
+            }
         }
     }
 
