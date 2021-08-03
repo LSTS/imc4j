@@ -10,6 +10,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.TimeZone;
 
+import pt.lsts.imc4j.msg.Announce;
 import pt.lsts.imc4j.msg.LogBookEntry;
 import pt.lsts.imc4j.msg.Message;
 import pt.lsts.imc4j.msg.ReportControl;
@@ -30,6 +31,7 @@ public class TcpClient extends Thread {
 	private InputStream input;
 	private OutputStream output;
 	public int remoteSrc = 0;
+	public String remoteName = "";
 	public int localSrc = 0x555;
 	
 	private String host = "";
@@ -76,6 +78,10 @@ public class TcpClient extends Thread {
 			                if (m != null) {
 			                    if (remoteSrc == 0)
 			                        remoteSrc = m.src;
+								if ((remoteName == null || remoteName.isEmpty()) &&
+										remoteSrc != 0 && m.mgid() == Announce.ID_STATIC) {
+									remoteName = ((Announce )m).sys_name;
+								}
 			                    dispatch(m);
 			                }
 			            }
