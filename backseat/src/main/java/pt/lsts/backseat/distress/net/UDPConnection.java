@@ -1,7 +1,10 @@
 package pt.lsts.backseat.distress.net;
 
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.HashSet;
@@ -127,5 +130,31 @@ public class UDPConnection {
             setUdpConnected(false);
 
         connected = isUdpConnected;
+    }
+
+    public boolean send(String remoteAddr, int remotePort, String msg) {
+        try {
+            return send(remoteAddr, remotePort, msg.getBytes("UTF-8"));
+        }
+        catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return send(remoteAddr, remotePort, msg.getBytes());
+        }
+    }
+
+    public boolean send(String remoteAddr, int remotePort, byte[] b) {
+        if (udpSocket != null && connected && udpSocket.isConnected()) {
+            try {
+                byte[] data = b;
+                DatagramPacket packet = new DatagramPacket(data, data.length,
+                        new InetSocketAddress(remoteAddr, remotePort));
+                udpSocket.send(packet);
+                return true;
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
     }
 }
