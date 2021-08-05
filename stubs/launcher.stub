@@ -39,12 +39,12 @@ fillBASE_DIR()
       PRG="$(readlink -f "$PRG")"
   else
     while [ -h "$PRG" ] ; do
-      ls=`ls -ld "$PRG"`
-      link=`expr "$ls" : '.*-> \(.*\)$'`
+      ls=$(ls -ld "$PRG")
+      link=$(expr "$ls" : '.*-> \(.*\)$')
       if expr "$link" : '/.*' > /dev/null; then
           PRG="$link"
       else
-          PRG=`dirname "$PRG"`"/$link"
+          PRG=$(dirname "$PRG")"/$link"
       fi
     done
   fi
@@ -56,7 +56,7 @@ PRG_NAME="$(basename "$PRG" | sed  's/\..*$//')"
 NAME="$(echo "$PRG_NAME" | sed 's/[^ -_]\+/\L\u&/g' | sed -E 's/((^)|([-_]))Lu(.)/\3\4/g')"
 RUN_HOME="$BASE_DIR"
 
-if [ -z ${CONF_FILE_NAME} ]; then
+if [ -z "${CONF_FILE_NAME}" ]; then
   CONF_FILE="$RUN_HOME/$(echo "$PRG_NAME" | sed  's/\..*$//').props"
 else
   CONF_FILE="$RUN_HOME/$CONF_FILE_NAME"
@@ -103,7 +103,7 @@ setupPsCmd()
 install()
 {
     echo "Trying to install into '/etc/rc.d'. Possibly remount '/' as rw 'mount / -o remount,rw'"
-    [ -e /etc/rc.d/ ] && echo "Installing $NAME at /etc/rc.d/" && ln -s "$(realpath $PRG)" "/etc/rc.d/${0%.*}"
+    [ -e /etc/rc.d/ ] && echo "Installing $NAME at /etc/rc.d/" && ln -s "$(realpath "$PRG")" "/etc/rc.d/${0%.*}"
 }
 
 start()
@@ -135,7 +135,7 @@ start()
 
 wait_for_clock()
 {
-  if [ -n ${SYNC_CLOCK+x} ]; then
+  if [ -n "${SYNC_CLOCK+x}" ]; then
     while [ $(date +%s) -lt 1507641301 ]; do
       echo "Waiting for the clock to be synchronized... ($(date)"
       sleep 1
@@ -145,11 +145,11 @@ wait_for_clock()
 
 check_if_any_running()
 {
-    $PSCMD | grep $JARNAME | grep java >/dev/null 2>&1
+    $PSCMD | grep "$JARNAME" | grep java >/dev/null 2>&1
     status=$?
     if [ $status -eq 0 ]; then
         echo "$NAME is running."
-        echo "Possible PIDs are: " $($PSCMD | grep $JARNAME | grep java | awk '{print $1}' c={1:-1})
+        echo "Possible PIDs are: " $($PSCMD | grep "$JARNAME" | grep java | awk '{print $1}' c={1:-1})
         exit 4
     fi
     return $status
@@ -157,19 +157,19 @@ check_if_any_running()
 
 status()
 {
-    $PSCMD | grep java | grep $JARNAME | grep $(cat $PIDFILE 2>/dev/null) >/dev/null 2>&1
+    $PSCMD | grep java | grep "$JARNAME "| grep $(cat "$PIDFILE" 2>/dev/null) >/dev/null 2>&1
     status=$?
     if [ $status -eq 0 ]; then
-        echo "$NAME is running for PID "$(cat $PIDFILE)"."
+        echo "$NAME is running for PID "$(cat "$PIDFILE")"."
     else
-        echo "$NAME is not running for PID "$(cat $PIDFILE 2>/dev/null)"."
-        echo "Possible PIDs are: " $($PSCMD | grep $JARNAME | grep java | awk '{print $1}' c={1:-1})
+        echo "$NAME is not running for PID "$(cat "$PIDFILE" 2>/dev/null)"."
+        echo "Possible PIDs are: " $($PSCMD | grep "$JARNAME" | grep java | awk '{print $1}' c={1:-1})
     fi
 }
 
 stop()
 {
-    PIDS=$($PSCMD | grep $JARNAME | grep java | awk '{print $1}' c={1:-1});
+    PIDS=$($PSCMD | grep "$JARNAME" | grep java | awk '{print $1}' c={1:-1});
     if [ -z "$PIDS" ]; then
         echo "$NAME is not running"
         return
@@ -180,10 +180,10 @@ stop()
         kill $PIDS > /dev/null 2>&1
 
         for r in 0 1 2 3 4 5 6 7 8 9; do
-            PIDS=$($PSCMD | grep $JARNAME | grep java | awk '{print $1}' c={1:-1});
-            if [ -z "$PIDS" ]; then
+            PIDS=$($PSCMD | grep "$JARNAME" | grep java | awk '{print $1}' c={1:-1});
+            if [ -z $PIDS ]; then
                 echo "Stopped $NAME"
-                rm -f $PIDFILE
+                rm -f "$PIDFILE"
                 return 0
             else
                 echo "Waiting for process to exit ($r)...  PIDs $PIDS"
@@ -191,13 +191,13 @@ stop()
             fi
         done
 
-        PIDS=$($PSCMD | grep $JARNAME | grep java | awk '{print $1}' c={1:-1});
+        PIDS=$($PSCMD | grep "$JARNAME" | grep java | awk '{print $1}' c={1:-1});
         echo "Forcing exit...  PIDs $PIDS"
         kill -9 $PIDS > /dev/null 2>&1
         sleep 1
-        PIDS=$($PSCMD | grep $JARNAME | grep java | awk '{print $1}' c={1:-1});
+        PIDS=$($PSCMD | grep "$JARNAME" | grep java | awk '{print $1}' c={1:-1});
     done
-    rm -f $PIDFILE
+    rm -f "$PIDFILE"
 }
 
 setupPsCmd
