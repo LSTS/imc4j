@@ -1167,12 +1167,12 @@ public class DistressSurvey extends TimedFSM {
             return this::goSurfaceStayState;
         }
         else if (hasGps()) {
-            if (!useStartPosForParking && (!Double.isFinite(latDegParking) && !Double.isFinite(lonDegParking))) {
+            if (!useStartPosForParking && Double.isFinite(latDegDefaultParking) && Double.isFinite(lonDegDefaultParking)) {
                 latDegParking = latDegDefaultParking;
                 lonDegParking = lonDegDefaultParking;
                 print(String.format("Set parking to default PLat %.6f    PLon %.6f", latDegParking, lonDegParking));
             }
-            else if (!Double.isFinite(latDegParking) || !Double.isFinite(lonDegParking)) {
+            if (!Double.isFinite(latDegParking) || !Double.isFinite(lonDegParking)) {
                 double[] curPos = WGS84Utilities.toLatLonDepth(get(EstimatedState.class));
                 latDegParking = curPos[0];
                 lonDegParking = curPos[1];
