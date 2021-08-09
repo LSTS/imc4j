@@ -38,7 +38,6 @@ import pt.lsts.imc4j.msg.Announce;
 import pt.lsts.imc4j.msg.EstimatedState;
 import pt.lsts.imc4j.msg.FollowRefState;
 import pt.lsts.imc4j.msg.Maneuver;
-import pt.lsts.imc4j.msg.Message;
 import pt.lsts.imc4j.msg.PlanDB;
 import pt.lsts.imc4j.msg.ReportControl;
 import pt.lsts.imc4j.msg.TextMessage;
@@ -109,7 +108,14 @@ public class DistressSurvey extends TimedFSM {
 
     @Parameter(description = "Minutes before termination")
     private int minutesTimeout = 60;
-    
+
+    @Parameter(description = "Using first pos as parking latitude/longitude or use the one given")
+    boolean useStartPosForParking = true;
+    @Parameter(description = "Parking latitude (use 'NaN' for none)")
+    double latDegDefaultParking = Double.NaN;
+    @Parameter(description = "Parking longitude (use 'NaN' for none)")
+    double lonDegDefaultParking = Double.NaN;
+
     @Parameter(description = "Maximum time underwater (minutes)")
     private int minsUnderwater = 15;
     @Parameter(description = "Periodic surface for position")
@@ -1161,11 +1167,16 @@ public class DistressSurvey extends TimedFSM {
             return this::goSurfaceStayState;
         }
         else if (hasGps()) {
-            if (!Double.isFinite(latDegParking) || !Double.isFinite(lonDegParking)) {
+            if (!useStartPosForParking && (!Double.isFinite(latDegParking) && !Double.isFinite(lonDegParking))) {
+                latDegParking = latDegDefaultParking;
+                lonDegParking = lonDegDefaultParking;
+                print(String.format("Set parking to default PLat %.6f    PLon %.6f", latDegParking, lonDegParking));
+            }
+            else if (!Double.isFinite(latDegParking) || !Double.isFinite(lonDegParking)) {
                 double[] curPos = WGS84Utilities.toLatLonDepth(get(EstimatedState.class));
                 latDegParking = curPos[0];
                 lonDegParking = curPos[1];
-                print(String.format("Set PLat %.6f    PLon %.6f", latDegParking, lonDegParking));
+                print(String.format("Set parking PLat %.6f    PLon %.6f", latDegParking, lonDegParking));
             }
         }
 
