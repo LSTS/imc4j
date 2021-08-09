@@ -33,6 +33,7 @@ import pt.lsts.imc4j.annotations.Consume;
 import pt.lsts.imc4j.annotations.Parameter;
 import pt.lsts.imc4j.annotations.Periodic;
 import pt.lsts.imc4j.def.SpeedUnits;
+import pt.lsts.imc4j.msg.Abort;
 import pt.lsts.imc4j.msg.Announce;
 import pt.lsts.imc4j.msg.EstimatedState;
 import pt.lsts.imc4j.msg.FollowRefState;
@@ -441,6 +442,16 @@ public class DistressSurvey extends TimedFSM {
         }
         else {
             print("NOT deactivating: " + pls);
+        }
+    }
+
+    @Consume
+    protected void on(Abort msg) {
+        super.on(msg);
+        if (msg.src == remoteSrc || msg.dst == remoteSrc) {
+            print("ABORTED. Distress");
+            if (paused)
+                finished = true;
         }
     }
 
