@@ -1,3 +1,9 @@
+*.props
+*.ini
+*.cache
+pid
+log
+
 bin/
 */bin/
 /.gradle/
@@ -23,4 +29,4 @@ out/
 /dist/*.jar
 /dist/*/*.jar
 /dist/*/*.sh
-
+/dist/*.sh
