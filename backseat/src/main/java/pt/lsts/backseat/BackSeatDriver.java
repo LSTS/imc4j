@@ -51,7 +51,16 @@ public abstract class BackSeatDriver extends TcpClient {
 	private static boolean IRIDIUM_SIMULATION = false;
 	
 	private LinkedHashMap<Integer, TransmissionRequest> iridiumTransmissions = new LinkedHashMap<>();
-	
+
+	public BackSeatDriver() {
+		super();
+		register(this);
+
+		if (IRIDIUM_SIMULATION) {
+			System.err.println("Simulated delivery of messages!");
+		}
+	}
+
 	public void setLocation(double latDegs, double lonDegs) {
 		reference.lat = Math.toRadians(latDegs);
 		reference.lon = Math.toRadians(lonDegs);
@@ -169,12 +178,12 @@ public abstract class BackSeatDriver extends TcpClient {
 		}
 	}
 
-	protected boolean isControlling() {
+	public boolean isControlling() {
 		PlanControlState msg = get(PlanControlState.class);
 		return (msg != null && msg.state == STATE.PCS_EXECUTING && msg.plan_id.equals(plan_name));
 	}
 
-	protected boolean isIdle() {
+	public boolean isIdle() {
 		PlanControlState msg = get(PlanControlState.class);
 		return (msg != null && msg.state == STATE.PCS_READY);
 	}
@@ -192,8 +201,16 @@ public abstract class BackSeatDriver extends TcpClient {
 				&& get(EstimatedState.class) != null;
 	}
 
+	public boolean isPaused() {
+		return paused;
+	}
+
 	public void setPaused(boolean paused) {
 		this.paused = paused;
+	}
+
+	public boolean isFinished() {
+		return finished;
 	}
 
 	public void stopExecution() {
@@ -348,15 +365,6 @@ public abstract class BackSeatDriver extends TcpClient {
 	}
 
 	public abstract void update(FollowRefState fref);
-
-	public BackSeatDriver() {
-		super();
-		register(this);
-		
-		if (IRIDIUM_SIMULATION) {
-			System.err.println("Simulated delivery of messages!");
-		}
-	}
 
 	protected void setParam(String entity, String param, String value) {
 		setParam(entity, new String[] { param, value });
