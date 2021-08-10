@@ -103,7 +103,7 @@ setupPsCmd()
     if [ $status -eq 0 ]; then
       PJARNAME=$JARNAME;
     else
-      PJARNAME=$(echo "$JARNAME" | awk '{s=substr($1,1,10)}{print $2,s}')
+      PJARNAME=$(echo "$JARNAME" | awk '{s=substr($1,1,10)}{print s}')
     fi
 
 }
@@ -165,7 +165,7 @@ check_if_any_running()
 
 status()
 {
-    $PSCMD | grep java | grep "$PJARNAME "| grep $(cat "$PIDFILE" 2>/dev/null) >/dev/null 2>&1
+    $PSCMD | grep java | grep "$PJARNAME" | grep $(cat "$PIDFILE" 2>/dev/null) >/dev/null 2>&1
     status=$?
     if [ $status -eq 0 ]; then
         echo "$NAME is running for PID "$(cat "$PIDFILE" 2>/dev/null)"."
