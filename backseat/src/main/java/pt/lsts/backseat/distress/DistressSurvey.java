@@ -61,6 +61,8 @@ public class DistressSurvey extends TimedFSM {
     public static final String PLAN_PATTERN_SUFFIX = "pattern";
     public static final String PLAN_REF_SUFFIX = "ref";
 
+    private static final double DIST_TO_PARKING_UNDERWATER_THRESHOLD = 50;
+
     private enum GoSurfaceTaskEnum {
         START_OP,
         END_OP,
@@ -153,7 +155,9 @@ public class DistressSurvey extends TimedFSM {
     private int loiterRadius = 15;
     @Parameter(description = "Max Depth (m)")
     private int maxDepth = 15;
-    @Parameter(description = "Working Depth (m)")
+    @Parameter(description = "Travel Depth (m) (should be smaller or equal to working depth)")
+    private int travelDepth = 2;
+    @Parameter(description = "Working Depth (m) (should be bigger or equal to working depth)")
     private int workingDepth = 5;
     @Parameter(description = "Speed to travel")
     private double speed = 1400;
@@ -750,7 +754,7 @@ public class DistressSurvey extends TimedFSM {
         for (int i = 0; i < olPointsList.size(); i++) {
             double ol = olPointsList.get(i);
             double ow = owPointsList.get(i);
-            double d = i == 0 ? workingDepth : depthRef;
+            double d = i == 0 ? Math.min(travelDepth, depthRef) : depthRef;
 
             double offsetX = Math.cos(angRads) * ol - Math.sin(angRads) * ow;
             double offsetY = Math.sin(angRads) * ol + Math.cos(angRads) * ow;
@@ -1035,12 +1039,12 @@ public class DistressSurvey extends TimedFSM {
         markState(this::loiterUnderwaterState);
         
         double[] loiterPos = WGS84Utilities.toLatLonDepth(get(EstimatedState.class));
-        setLoiterRef(loiterPos[0], loiterPos[1], workingDepth);
+        setLoiterRef(loiterPos[0], loiterPos[1], travelDepth);
         setCourseSpeed();
         int pHash = Arrays.hashCode(loiterPos);
         if (lastSentPlanRefHash != pHash) {
             sendPlanToVehicleDb(PLAN_REF_SUFFIX, PlanPointsUtil.createGotoFrom(loiterPos[0], loiterPos[1],
-                    workingDepth, getCourseSpeedValue(), getCourseSpeedUnit()));
+                    travelDepth, getCourseSpeedValue(), getCourseSpeedUnit()));
             lastSentPlanRefHash = pHash;
         }
 
@@ -1051,11 +1055,11 @@ public class DistressSurvey extends TimedFSM {
             default:
                 if (keepInParkingPosAtStart && (Double.isFinite(latDegParking) && Double.isFinite(lonDegParking))) {
                     print(String.format("Ref to parking PLat %.6f    PLon %.6f", latDegParking, lonDegParking));
-                    setLoiterRef(latDegParking, lonDegParking, workingDepth);
+                    setLoiterRef(latDegParking, lonDegParking, travelDepth);
                     pHash = Arrays.hashCode(new double[]{latDegParking, lonDegParking, workingDepth});
                     if (lastSentPlanRefHash != pHash) {
                         sendPlanToVehicleDb(PLAN_REF_SUFFIX, PlanPointsUtil.createGotoFrom(latDegParking, lonDegParking,
-                                workingDepth, getCourseSpeedValue(), getCourseSpeedUnit()));
+                                travelDepth, getCourseSpeedValue(), getCourseSpeedUnit()));
                         lastSentPlanRefHash = pHash;
                     }
                 }
@@ -1095,11 +1099,11 @@ public class DistressSurvey extends TimedFSM {
                 default:
                     if (keepInParkingPosAtStart && (Double.isFinite(latDegParking) && Double.isFinite(lonDegParking))) {
                         print(String.format("Ref to parking PLat %.6f    PLon %.6f", latDegParking, lonDegParking));
-                        setLoiterRef(latDegParking, lonDegParking, workingDepth);
+                        setLoiterRef(latDegParking, lonDegParking, travelDepth);
                         pHash = Arrays.hashCode(new double[]{latDegParking, lonDegParking, workingDepth});
                         if (lastSentPlanRefHash != pHash) {
                             sendPlanToVehicleDb(PLAN_REF_SUFFIX, PlanPointsUtil.createGotoFrom(latDegParking, lonDegParking,
-                                    workingDepth, getCourseSpeedValue(), getCourseSpeedUnit()));
+                                    travelDepth, getCourseSpeedValue(), getCourseSpeedUnit()));
                             lastSentPlanRefHash = pHash;
                         }
                     }
@@ -1164,6 +1168,18 @@ public class DistressSurvey extends TimedFSM {
         if (isUnderwater()) {
             print("Waiting to surface");
             atSurfaceMillis = -1;
+
+            if (Double.isFinite(latDegParking) && Double.isFinite(lonDegParking)) {
+                double[] curPos = WGS84Utilities.toLatLonDepth(get(EstimatedState.class));
+                double distToPark = WGS84Utilities.distance(curPos[0], curPos[1], latDegParking, lonDegParking);
+                if (distToPark > DIST_TO_PARKING_UNDERWATER_THRESHOLD) {
+                    setDepth(travelDepth);
+                }
+                else {
+                    setDepth(0);
+                }
+            }
+
             return this::goSurfaceStayState;
         }
         else if (hasGps()) {
@@ -1199,7 +1215,14 @@ public class DistressSurvey extends TimedFSM {
             default:
                 if (keepInParkingPosAtStart && (Double.isFinite(latDegParking) && Double.isFinite(lonDegParking))) {
                     print(String.format("Ref to parking PLat %.6f    PLon %.6f", latDegParking, lonDegParking));
-                    setSurfaceLoiterRef(latDegParking, lonDegParking);
+                    double[] curPos = WGS84Utilities.toLatLonDepth(get(EstimatedState.class));
+                    double distToPark = WGS84Utilities.distance(curPos[0], curPos[1], latDegParking, lonDegParking);
+                    if (distToPark > DIST_TO_PARKING_UNDERWATER_THRESHOLD) {
+                        setLoiterRef(latDegParking, lonDegParking, travelDepth);
+                    }
+                    else {
+                        setSurfaceLoiterRef(latDegParking, lonDegParking);
+                    }
                     int pHash = Arrays.hashCode(new double[]{latDegParking, lonDegParking});
                     if (lastSentPlanRefHash != pHash) {
                         sendPlanToVehicleDb(PLAN_REF_SUFFIX, PlanPointsUtil.createGotoFrom(latDegParking, lonDegParking,
