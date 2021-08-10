@@ -1,3 +1,7 @@
+plugins {
+    id "com.gorylenko.gradle-git-properties" version "2.3.1"
+}
+
 allprojects {
     version = '1.0.6'
     repositories {
@@ -5,9 +9,33 @@ allprojects {
     }
     apply plugin: 'maven-publish'
     apply plugin: 'java'
+    apply plugin: "com.gorylenko.gradle-git-properties"
 }
 
 subprojects {
+    gitProperties {
+        extProperty = 'gitProps'
+        failOnNoGitDirectory = false
+
+        dateFormat = "yyyy-MM-dd'T'HH:mmZ"
+        dateFormatTimeZone = "UTC"
+
+        gitPropertiesName = "${name}-git.info"
+        keys = ['git.branch',
+                'git.build.version',
+                'git.closest.tag.commit.count',
+                'git.closest.tag.name',
+                'git.commit.id',
+                'git.commit.id.abbrev',
+                'git.commit.id.describe',
+                'git.commit.time',
+                'git.dirty',
+                //'git.remote.origin.url',
+                'git.tags',
+        ]
+    }
+    generateGitProperties.outputs.upToDateWhen { false }
+
     publishing {
         publications {
             maven(MavenPublication) {
@@ -17,6 +45,29 @@ subprojects {
         }
     }
 }
+
+gitProperties {
+    extProperty = 'gitProps'
+    failOnNoGitDirectory = false
+
+    dateFormat = "yyyy-MM-dd'T'HH:mmZ"
+    dateFormatTimeZone = "UTC"
+
+    gitPropertiesName = "git.info"
+    keys = ['git.branch',
+            'git.build.version',
+            'git.closest.tag.commit.count',
+            'git.closest.tag.name',
+            'git.commit.id',
+            'git.commit.id.abbrev',
+            'git.commit.id.describe',
+            'git.commit.time',
+            'git.dirty',
+            //'git.remote.origin.url',
+            'git.tags',
+    ]
+}
+generateGitProperties.outputs.upToDateWhen { false }
 
 clean {
     delete fileTree(dir: 'dist' , include: '**/*.jar')
