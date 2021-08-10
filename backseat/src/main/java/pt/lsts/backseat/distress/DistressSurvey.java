@@ -1173,10 +1173,10 @@ public class DistressSurvey extends TimedFSM {
                 double[] curPos = WGS84Utilities.toLatLonDepth(get(EstimatedState.class));
                 double distToPark = WGS84Utilities.distance(curPos[0], curPos[1], latDegParking, lonDegParking);
                 if (distToPark > DIST_TO_PARKING_UNDERWATER_THRESHOLD) {
-                    setDepth(travelDepth);
+                    setLoiterRef(latDegParking, lonDegParking, travelDepth);
                 }
                 else {
-                    setDepth(0);
+                    setSurfaceLoiterRef(latDegParking, lonDegParking);
                 }
             }
 
