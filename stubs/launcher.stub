@@ -98,6 +98,14 @@ setupPsCmd()
     else
         PSCMD="ps"
     fi
+
+    # To use in reduced output from ps in busybox
+    if [ $status -eq 0 ]; then
+      PJARNAME=$JARNAME;
+    else
+      PJARNAME=$(echo "$JARNAME" | awk '{s=substr($1,1,10)}{print $2,s}')
+    fi
+
 }
 
 install()
@@ -120,7 +128,7 @@ start()
     cd "$RUN_HOME"
     if [ -z ${RUN_AS_HTTP_SERVER+x} ]; then
        echo "Running with configuration \n  -> '$CONF_FILE'..."
-      "$JAVA" -jar $JARNAME "$CONF_FILE" < /dev/null > "$OUTPUT" 2>&1 &
+      "$JAVA" -jar "$JARNAME" "$CONF_FILE" < /dev/null > "$OUTPUT" 2>&1 &
       pid=$!
     else
       echo "Running $CLASS_SERVER on port $SERVER_PORT for $NAME with configuration \n  -> '$CONF_FILE'..."
@@ -145,11 +153,11 @@ wait_for_clock()
 
 check_if_any_running()
 {
-    $PSCMD | grep "$JARNAME" | grep java >/dev/null 2>&1
+    $PSCMD | grep java | grep "$PJARNAME" >/dev/null 2>&1
     status=$?
     if [ $status -eq 0 ]; then
         echo "$NAME is running."
-        echo "Possible PIDs are: " $($PSCMD | grep "$JARNAME" | grep java | awk '{print $1}' c={1:-1})
+        echo "Possible PIDs are: " $($PSCMD | grep "$PJARNAME" | grep java | awk '{print $1}' c={1:-1})
         exit 4
     fi
     return $status
@@ -157,19 +165,19 @@ check_if_any_running()
 
 status()
 {
-    $PSCMD | grep java | grep "$JARNAME "| grep $(cat "$PIDFILE" 2>/dev/null) >/dev/null 2>&1
+    $PSCMD | grep java | grep "$PJARNAME "| grep $(cat "$PIDFILE" 2>/dev/null) >/dev/null 2>&1
     status=$?
     if [ $status -eq 0 ]; then
-        echo "$NAME is running for PID "$(cat "$PIDFILE")"."
+        echo "$NAME is running for PID "$(cat "$PIDFILE" 2>/dev/null)"."
     else
         echo "$NAME is not running for PID "$(cat "$PIDFILE" 2>/dev/null)"."
-        echo "Possible PIDs are: " $($PSCMD | grep "$JARNAME" | grep java | awk '{print $1}' c={1:-1})
+        echo "Possible PIDs are: " $($PSCMD | grep java | grep "$PJARNAME" | awk '{print $1}' c={1:-1})
     fi
 }
 
 stop()
 {
-    PIDS=$($PSCMD | grep "$JARNAME" | grep java | awk '{print $1}' c={1:-1});
+    PIDS=$($PSCMD | grep java | grep "$PJARNAME" | awk '{print $1}' c={1:-1});
     if [ -z "$PIDS" ]; then
         echo "$NAME is not running"
         return
@@ -178,9 +186,9 @@ stop()
     while [ 1 ]; do
         echo "Stopping $NAME with PIDs $PIDS"
         kill $PIDS > /dev/null 2>&1
-
         for r in 0 1 2 3 4 5 6 7 8 9; do
-            PIDS=$($PSCMD | grep "$JARNAME" | grep java | awk '{print $1}' c={1:-1});
+            PIDS=$($PSCMD | grep java | grep "$PJARNAME" | awk '{print $1}' c={1:-1});
+
             if [ -z $PIDS ]; then
                 echo "Stopped $NAME"
                 rm -f "$PIDFILE"
@@ -191,11 +199,11 @@ stop()
             fi
         done
 
-        PIDS=$($PSCMD | grep "$JARNAME" | grep java | awk '{print $1}' c={1:-1});
+        PIDS=$($PSCMD | grep java | grep "$PJARNAME" | awk '{print $1}' c={1:-1});
         echo "Forcing exit...  PIDs $PIDS"
         kill -9 $PIDS > /dev/null 2>&1
         sleep 1
-        PIDS=$($PSCMD | grep "$JARNAME" | grep java | awk '{print $1}' c={1:-1});
+        PIDS=$($PSCMD | grep java | grep "$JARNAME" | awk '{print $1}' c={1:-1});
     done
     rm -f "$PIDFILE"
 }
