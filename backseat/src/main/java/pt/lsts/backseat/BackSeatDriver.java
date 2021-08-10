@@ -61,6 +61,12 @@ public abstract class BackSeatDriver extends TcpClient {
 		}
 	}
 
+//	@Override
+//	public void disconnect() {
+//		end();
+//		super.disconnect();
+//	}
+
 	public void setLocation(double latDegs, double lonDegs) {
 		reference.lat = Math.toRadians(latDegs);
 		reference.lon = Math.toRadians(lonDegs);

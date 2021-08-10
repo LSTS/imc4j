@@ -266,6 +266,12 @@ public class DistressSurvey extends TimedFSM {
         state = this::goSurfaceState;
     }
 
+    @Override // For now let us place here because not completely test the implications
+    public void disconnect() {
+        end();
+        super.disconnect();
+    }
+
     @Override
     public void update(FollowRefState fref) {
         curTimeMillis = System.currentTimeMillis();
