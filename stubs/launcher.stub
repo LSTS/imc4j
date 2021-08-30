@@ -240,6 +240,9 @@ case $1 in
     start)
         start
         ;;
+    install)
+        install
+        ;;
     *)
         echo "Usage: $0 {start|restart|stop|status|tail|install}"
         echo "  It will run '$JARNAME' with configuration '$CONF_FILE'"
