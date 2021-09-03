@@ -22,6 +22,9 @@ PATH=/sbin:/bin:/usr/sbin:/usr/bin:$PATH
 ## -- No need to change beyond this point -- ##
 JARNAME="@JARNAME@"
 
+## Don't change this, it will be changed by the install command
+BASE_DIR_OVERRIDE=""
+
 # Settings to run with an HTTP server
 CLASS_BACKSEAT="@CLASS_BACKSEAT@"
 if [ -z ${SERVER_PORT+x} ]; then
@@ -53,8 +56,21 @@ fillBASE_DIR()
 fillBASE_DIR
 
 PRG_NAME="$(basename "$PRG" | sed  's/\..*$//')"
+
+case "$0" in
+  *services*)
+    echo "Running as service!"
+    PRG_NAME="$1"
+    if [ -n "${BASE_DIR_OVERRIDE+x}" ]; then
+      echo ">> Setting base dir for running as service"
+      BASE_DIR="$BASE_DIR_OVERRIDE"
+    fi
+esac;
+
 NAME="$(echo "$PRG_NAME" | sed 's/[^ -_]\+/\L\u&/g' | sed -E 's/((^)|([-_]))Lu(.)/\3\4/g')"
 RUN_HOME="$BASE_DIR"
+
+echo "Running >>>>> " $NAME " @ " $RUN_HOME
 
 if [ -z "${CONF_FILE_NAME}" ]; then
   CONF_FILE="$RUN_HOME/$(echo "$PRG_NAME" | sed  's/\..*$//').props"
@@ -111,6 +127,9 @@ setupPsCmd()
 install()
 {
     echo "Trying to install into '/etc/rc.d'. Possibly remount '/' as rw 'mount / -o remount,rw'"
+    SUB="sed -i -e s|^BASE_DIR_OVERRIDE=\\\".*\\\"|BASE_DIR_OVERRIDE="\\\"$BASE_DIR\\\""|g $PRG"
+    echo "SUB="$SUB
+    $SUB
     [ -e /etc/rc.d/ ] && echo "Installing $NAME at /etc/rc.d/" && ln -s "$(realpath "$PRG")" "/etc/rc.d/${0%.*}"
 }
 
