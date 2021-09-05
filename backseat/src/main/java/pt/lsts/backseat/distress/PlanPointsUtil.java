@@ -117,4 +117,14 @@ public class PlanPointsUtil {
 
         return pdb;
     }
+
+    public static PlanDB createPlanDBGet(String planId) {
+        PlanDB pdb = new PlanDB();
+        pdb.request_id = reqId.incrementAndGet();
+        pdb.plan_id = planId;
+        pdb.type = PlanDB.TYPE.DBT_REQUEST;
+        pdb.op = PlanDB.OP.DBOP_GET;
+
+        return pdb;
+    }
 }

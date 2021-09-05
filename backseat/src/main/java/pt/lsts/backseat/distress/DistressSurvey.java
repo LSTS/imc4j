@@ -1046,6 +1046,17 @@ public class DistressSurvey extends TimedFSM {
         }
     }
 
+    private void sendGetPlanToVehicleDb(String planName) {
+        try {
+            PlanDB msg = PlanPointsUtil.createPlanDBGet(planCreationPrefix + planName);
+            if (msg != null)
+                send(msg);
+        }
+        catch (IOException e) {
+            printError(e.getMessage());
+        }
+    }
+
     private int calcRefPointsHashCode(List<double[]> refPoints) {
         return Arrays.hashCode(refPoints.stream().map(e -> Arrays.hashCode(e)).toArray());
     }
@@ -1314,6 +1325,7 @@ public class DistressSurvey extends TimedFSM {
             sendPlanToVehicleDb(PLAN_PATTERN_SUFFIX, PlanPointsUtil.createFollowPathFrom(patternLatDegsForPlan,
                     patternLonDegsForPlan, patternDepthForPlan, getCourseSpeedValue(), getCourseSpeedUnit(),
                     patternPathOffsetsForPlan, ""));
+            sendGetPlanToVehicleDb(PLAN_PATTERN_SUFFIX);
             lastSentPlanPatternHash = pHash;
         }
 
@@ -1355,6 +1367,7 @@ public class DistressSurvey extends TimedFSM {
                 sendPlanToVehicleDb(PLAN_PATTERN_SUFFIX, PlanPointsUtil.createFollowPathFrom(patternLatDegsForPlan,
                         patternLonDegsForPlan, patternDepthForPlan, getCourseSpeedValue(), getCourseSpeedUnit(),
                         patternPathOffsetsForPlan, ""));
+                sendGetPlanToVehicleDb(PLAN_PATTERN_SUFFIX);
                 lastSentPlanPatternHash = pHash;
             }
 
@@ -1449,6 +1462,7 @@ public class DistressSurvey extends TimedFSM {
             sendPlanToVehicleDb(PLAN_PATTERN_SUFFIX, PlanPointsUtil.createFollowPathFrom(patternLatDegsForPlan,
                     patternLonDegsForPlan, patternDepthForPlan, getCourseSpeedValue(), getCourseSpeedUnit(),
                     patternPathOffsetsForPlan, ""));
+            sendGetPlanToVehicleDb(PLAN_PATTERN_SUFFIX);
             lastSentPlanPatternHash = pHash;
         }
 
@@ -1486,6 +1500,7 @@ public class DistressSurvey extends TimedFSM {
                 sendPlanToVehicleDb(PLAN_PATTERN_SUFFIX, PlanPointsUtil.createFollowPathFrom(patternLatDegsForPlan,
                         patternLonDegsForPlan, patternDepthForPlan, getCourseSpeedValue(), getCourseSpeedUnit(),
                         patternPathOffsetsForPlan, ""));
+                sendGetPlanToVehicleDb(PLAN_PATTERN_SUFFIX);
                 lastSentPlanPatternHash = pHash;
             }
 
