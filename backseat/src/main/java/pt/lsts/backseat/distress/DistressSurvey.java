@@ -875,7 +875,7 @@ public class DistressSurvey extends TimedFSM {
                 break;
         }
 
-        double rowsWidth = (targetWidth + surveyDeltaAltitudeFromTarget * 10) * 2;
+        double rowsWidth = (targetWidth + surveyDeltaAltitudeFromTarget * 10) * 5;
         double rowsLength = targetLength * 1.3 + surveyDeltaAltitudeFromTarget * 10;
         List<double[]> refPoints = ManeuversUtil.calcRowsPoints(rowsWidth, rowsLength, 27, 1,
                 10, true, angRads, 0, invertRows);
