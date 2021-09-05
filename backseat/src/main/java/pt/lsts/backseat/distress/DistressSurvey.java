@@ -153,6 +153,8 @@ public class DistressSurvey extends TimedFSM {
 
     @Parameter(description = "Loiter Radius (m)")
     private int loiterRadius = 15;
+    @Parameter(description = "Min Altitude (m)")
+    private int minAlt = 3;
     @Parameter(description = "Max Depth (m)")
     private int maxDepth = 15;
     @Parameter(description = "Travel Depth (m) (should be smaller or equal to working depth)")
@@ -246,6 +248,8 @@ public class DistressSurvey extends TimedFSM {
     private double latDegParking = Double.NaN;
     private double lonDegParking = Double.NaN;
 
+    private double refDepth = 0;
+
     private SurveyPatternEnum surveyPattern = SurveyPatternEnum.DEFAULT;
 
     private HashMap<String, HashMap<String, String>> payloadToActivate = new LinkedHashMap<>();
@@ -277,7 +281,20 @@ public class DistressSurvey extends TimedFSM {
         curTimeMillis = System.currentTimeMillis();
         if (reportPeriodSeconds > 0 && curTimeMillis - reportSentMillis > reportPeriodSeconds * 1000)
             sendReportMsg();
-        
+
+        // Control the depth reference with the minAlt
+        double d = refDepth;
+        EstimatedState es = get(EstimatedState.class);
+        if (es != null && es.depth >= 0 && es.alt >= 0 && es.alt < minAlt && d > 0) {
+            double dA = minAlt - es.alt;
+            dA = dA > 0 ? dA : 0;
+            d = es.depth - dA;
+            d = d < 0 ? 0 : d;
+            d = Math.min(refDepth, d);
+        }
+        d = Math.min(maxDepth, d);
+        super.setDepth(d); // super because we don't want our override
+
         super.update(fref);
     }
     
@@ -562,6 +579,7 @@ public class DistressSurvey extends TimedFSM {
     
     @Override
     public void setDepth(double depth) {
+        refDepth = depth;
         super.setDepth(Math.min(maxDepth, depth));
     }
 
