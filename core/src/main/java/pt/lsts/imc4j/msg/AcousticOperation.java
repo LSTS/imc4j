@@ -124,7 +124,9 @@ public class AcousticOperation extends Message {
 
 		AOP_MSG_SHORT(16l),
 
-		AOP_REVERSE_RANGE(17l);
+		AOP_REVERSE_RANGE(17l),
+
+		AOP_FORCED_ABORT(18l);
 
 		protected long value;
 

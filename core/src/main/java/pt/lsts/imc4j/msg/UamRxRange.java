@@ -10,21 +10,34 @@ import pt.lsts.imc4j.annotations.FieldType;
 import pt.lsts.imc4j.annotations.IMCField;
 import pt.lsts.imc4j.util.SerializationUtils;
 
+/**
+ * Acoustic range measurement.
+ */
 public class UamRxRange extends Message {
 	public static final int ID_STATIC = 817;
 
+	/**
+	 * The sequence identifier of the ranging request.
+	 */
 	@FieldType(
 			type = IMCField.TYPE_UINT16
 	)
 	public int seq = 0;
 
+	/**
+	 * The canonical name of the ranged system.
+	 */
 	@FieldType(
 			type = IMCField.TYPE_PLAINTEXT
 	)
 	public String sys = "";
 
+	/**
+	 * The actual range. Negative values denote invalid measurements.
+	 */
 	@FieldType(
-			type = IMCField.TYPE_FP32
+			type = IMCField.TYPE_FP32,
+			units = "m"
 	)
 	public float value = 0f;
 

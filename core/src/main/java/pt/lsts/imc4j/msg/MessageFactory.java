@@ -423,6 +423,8 @@ public class MessageFactory {
 
 	public static final int ID_StationKeepingExtended = 496;
 
+	public static final int ID_ManeuverDone = 497;
+
 	public static final int ID_Magnetometer = 499;
 
 	public static final int ID_VehicleState = 500;
@@ -633,9 +635,9 @@ public class MessageFactory {
 
 	public static final int ID_DmsDetection = 908;
 
-	public static final int ID_TotalMagIntensity = 2006;
-
 	public static final int ID_HomePosition = 909;
+
+	public static final int ID_TotalMagIntensity = 2006;
 
 	public static Message create(int mgid) {
 		switch(mgid) {
@@ -1269,6 +1271,9 @@ public class MessageFactory {
 			case ID_StationKeepingExtended: {
 				return new StationKeepingExtended();
 			}
+			case ID_ManeuverDone: {
+				return new ManeuverDone();
+			}
 			case ID_Magnetometer: {
 				return new Magnetometer();
 			}
@@ -1584,11 +1589,11 @@ public class MessageFactory {
 			case ID_DmsDetection: {
 				return new DmsDetection();
 			}
-			case ID_TotalMagIntensity: {
-				return new TotalMagIntensity();
-			}
 			case ID_HomePosition: {
 				return new HomePosition();
+			}
+			case ID_TotalMagIntensity: {
+				return new TotalMagIntensity();
 			}
 			default: {
 				return null;
@@ -2232,6 +2237,9 @@ public class MessageFactory {
 			case "StationKeepingExtended": {
 				return ID_StationKeepingExtended;
 			}
+			case "ManeuverDone": {
+				return ID_ManeuverDone;
+			}
 			case "Magnetometer": {
 				return ID_Magnetometer;
 			}
@@ -2547,11 +2555,11 @@ public class MessageFactory {
 			case "DmsDetection": {
 				return ID_DmsDetection;
 			}
-			case "TotalMagIntensity": {
-				return ID_TotalMagIntensity;
-			}
 			case "HomePosition": {
 				return ID_HomePosition;
+			}
+			case "TotalMagIntensity": {
+				return ID_TotalMagIntensity;
 			}
 			default: {
 				return -1;
