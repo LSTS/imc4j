@@ -427,54 +427,25 @@ public class BackSeatServer extends NanoHTTPD {
 			e.printStackTrace();
 		}
 
-		StringBuilder sb = new StringBuilder();
-		
-        sb.append("<html lang=\"en\">\n");
-        sb.append("<head>\n");
-        sb.append("<title>").append(name).append("</title>\n");
-        sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\"/>\n");
-        sb.append("<link rel=\"manifest\" href=\"/manifest.json\">\n");
-        sb.append("<script src=\"util.js\"></script>\n");
-        sb.append("<meta name=\"theme-color\" content=\"#1589FF\">\n");
-        sb.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n");
-        sb.append("</head>\n");
-        sb.append("<body>\n");
-        sb.append("<h1>").append(name).append("</h1>\n");
-        sb.append("<form action=/ method='post'>\n");
-		
-		if (!driver.isAlive())
-			sb.append("<input type='submit' id='startStop' name='cmd' value='Start' />\n");
-		else
-			sb.append("<input type='submit' id='startStop' name='cmd' value='Stop' />\n");
-		
-		sb.append(" &nbsp; <input type='submit' name='cmd' id='save' value='Save' />\n");
-		
-		String checkedAutoStart = autoStartOnPowerOn ? " checked=\"checked\"" : "";
-		sb.append(" &nbsp; <label for=\"autoStart\"><input type=\"checkbox\" id=\"autoStart\" name=\"autoStart\""
-		        + checkedAutoStart
-		        + " value=\"checked\"/> Auto Start on Power On</label>\n");
-		
-		sb.append("<br/>\n");
-		
-		sb.append("<label for=\"settings\"><h2>Settings:</h2></label>\n");
-		sb.append("<textarea class='settings' id='settings' name='settings' cols='100' rows='20'>\n");
-		sb.append(settings);
-		sb.append("</textarea>\n");
+		try (InputStream inStream = this.getClass().getResourceAsStream("index.html");
+			 Scanner s = new Scanner(inStream)) {
+			s.useDelimiter("\\A");
+			String indexHtml = s.hasNext() ? s.next() : "";
 
-		{
-			sb.append("<h2><label for=\"logbook\">Log Book</label>:\n");
-			sb.append("&nbsp; <input id='reloadLogbook' name='reloadLogbook' type=\"button\" onclick=\"reloadLogbookFrame()\" value=\"Reload\"><br/>");
-            sb.append("</h2>\n");
-			sb.append("<iframe onload='scrollToEnd();' name='logbook' id='logbook' title='log book' src='/logbook' height='400px' width='800px'></iframe>\n");
+			indexHtml = indexHtml.replaceFirst("\\(\\(-TITLE-\\)\\)", name);
+			indexHtml = indexHtml.replaceFirst("\\(\\(-NAME-\\)\\)", name);
+			indexHtml = indexHtml.replaceFirst("\\(\\(-START-STOP-\\)\\)", !driver.isAlive() ? "Start" : "Stop");
+			indexHtml = indexHtml.replaceFirst("\\(\\(-CHECKED-\\)\\)", autoStartOnPowerOn ? " checked=\"checked\"" : "");
+			indexHtml = indexHtml.replaceFirst("\\(\\(-SETTINGS-\\)\\)", settings);
+			indexHtml = indexHtml.replaceFirst("\\(\\(-COPY-YEARS-\\)\\)", copyYear);
+
+			return newChunkedResponse(Status.OK, "text/html", new ByteArrayInputStream(indexHtml.getBytes()));
+		}
+		catch (Exception e) {
+			e.printStackTrace();
 		}
 
-		sb.append("</form>\n");
-		
-        sb.append("<p id='copyText'>&copy; ").append(copyYear).append(" - LSTS</p>\n");
-        sb.append("</body>\n");
-        sb.append("</html>\n");
-
-		return newFixedLengthResponse(sb.toString());
+		return newFixedLengthResponse("<html><body>503</body></html>>");
 	}
 
 	public static void main(String[] args) throws Exception {

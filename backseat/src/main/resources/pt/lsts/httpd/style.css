@@ -1,11 +1,17 @@
+@import url('https://fonts.googleapis.com/css?family=Titillium+Web&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Noto+Sans&display=swap');
+
 body {
-  background-color: #1589FF; /* Dodger Blue */
-  font-family: Tahoma,Arial,Helvetica,sans-serif;
+  background-color: #31475e;
+  font-family: 'Noto Sans', Tahoma,Arial,Helvetica,sans-serif;
   color: #FFFFFF;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
 }
 
 h1, h2, h3, h4, h5, h6 {
-	font-family: "Trebuchet MS", "Trebuchet", "Nimbus Sans L", sans-serif;
+	font-family: 'Titillium Web', "Trebuchet MS", "Trebuchet", "Nimbus Sans L", sans-serif;
 	color: #FFFFFF;
 	margin: 1em 0 .3em;
 }
@@ -19,21 +25,41 @@ p {
 }
 
 .changed {
-  color: #F88017; /* Dark Orange */
+  color: #FFBF5A; /* FF8A14 */
 }
 
 .changedOverBackground {
-  background-color: #FF8A14; /* Orange Complementary color of Dodger Blue */
+  background-color: #FFBF5A;
   color: white
 }
 
+input[type=checkbox]:checked {
+  accent-color: #31475e;
+}
+input[type=checkbox] {
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+}
+
+input[type=button], input[type=submit], input[type=reset] {
+  /* border: none; */
+  padding: 10px 32px;
+  text-decoration: none;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 1em;
+}
+
 .buttonChanged {
-  background-color: #FF8A14; /* Orange Complementary color of Dodger Blue */
+  background-color: #FFBF5A; /* Orange Complementary color of Dodger Blue */
   color: white
 }
 
 iframe {
-  background-color: white;
+  /*background-color: white;*/
+  background-color: #333333;
 }
 
 a {
@@ -63,8 +89,73 @@ a:hover {
 form { 
 	/*border : solid gray 1px;*/
 	padding : 3px; 
+  background-color: #333333;
+  color: white
+}
+form .settings {
+}
+form textarea {
+  width: 95%;
+  background-color: #707070;
+  color: white
+}
+form iframe#logbook {
+  width: 95%;
+  border: 0em;
+  background-color: #707070;
+  color: white
 }
 
+header {
+  width: 285px;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+  padding: 10px 0px 30px 0px;
+  border-radius: 22px 22px 0px 0px;
+}
+
+header .container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+main {
+  padding: 1em;
+  width: 285px;
+  margin: auto;
+  background-color: #333333;
+  border-radius: 2em;
+}
+
+footer {
+  width: 285px;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+  padding: 30px 0px 10px 0px;
+  border-radius: 0px 0px 22px 22px;
+  /* background-color: #333333; */
+  color: #ffffff;
+}
+
+@media(min-width: 320px) {
+  header,
+  footer,
+  main {
+    width: 95%;
+  }
+}
+
+@media(min-width: 768px) {
+  header,
+  footer,
+  main {
+    width: 760px;
+  }
+}
 
 @media only screen and (device-width: 768px) and (orientation: landscape) {
   /* rules for iPad in landscape orientation */
