@@ -30,6 +30,7 @@ import pt.lsts.imc4j.msg.PopUp;
 import pt.lsts.imc4j.msg.PopUp.FLAGS;
 import pt.lsts.imc4j.msg.QueryEntityParameters;
 import pt.lsts.imc4j.msg.Sms;
+import pt.lsts.imc4j.msg.TransmissionRequest;
 import pt.lsts.imc4j.util.PojoConfig;
 import pt.lsts.imc4j.util.WGS84Utilities;
 
@@ -76,9 +77,12 @@ public class ArpaoExecutive extends MissionExecutive {
     @Parameter(description = "Number of tries to align IMU (min=1)")
     public int imu_align_tries = 2;
 
-    @Parameter(description = "Send status over SMS")
+	@Parameter(description = "Send status over Iridium")
+	private boolean iridium_updates = false;
+
+	@Parameter(description = "Send status over SMS")
     public boolean sms_updates = false;
-    
+
     @Parameter(description = "GSM Number where to send reports. Leave empty to use the emergency number.")
     public String gsm_number = "";
 	
@@ -271,6 +275,22 @@ public class ArpaoExecutive extends MissionExecutive {
 			}
 			else {
 				print(message+" - Not sending SMS -");
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		TransmissionRequest txRqst = new TransmissionRequest();
+		txRqst.txt_data = message;
+		txRqst.deadline = System.currentTimeMillis() / 1E3 + 60;
+
+		try {
+			if (iridium_updates) {
+				txRqst.req_id = requestIdConter++;
+				txRqst.comm_mean =  TransmissionRequest.COMM_MEAN.CMEAN_SATELLITE;
+				print("Sending Iridium with contents: '" + message + "'.");
+				send(txRqst);
 			}
 		}
 		catch (Exception e) {
