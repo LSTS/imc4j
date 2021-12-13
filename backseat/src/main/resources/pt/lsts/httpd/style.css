@@ -30,7 +30,7 @@ p {
 
 .changedOverBackground {
   background-color: #FFBF5A;
-  color: white
+  color: white;
 }
 
 input[type=checkbox]:checked {
@@ -54,7 +54,7 @@ input[type=button], input[type=submit], input[type=reset] {
 
 .buttonChanged {
   background-color: #FFBF5A; /* Orange Complementary color of Dodger Blue */
-  color: white
+  color: white;
 }
 
 iframe {
@@ -87,23 +87,23 @@ a:hover {
 }
 
 form { 
-	/*border : solid gray 1px;*/
-	padding : 3px; 
+  /*border : solid gray 1px;*/
+  padding : 3px;
   background-color: #333333;
-  color: white
+  color: white;
 }
 form .settings {
 }
 form textarea {
   width: 95%;
   background-color: #707070;
-  color: white
+  color: white;
 }
 form iframe#logbook {
   width: 95%;
   border: 0em;
   background-color: #707070;
-  color: white
+  color: white;
 }
 
 header {

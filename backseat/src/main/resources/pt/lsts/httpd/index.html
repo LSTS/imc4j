@@ -29,25 +29,22 @@
 
 <!-- Main Area -->
 <main id="main">
-
 	<form action='/' method='post'>
 		<div>
 			<input type='submit' id='startStop' name='cmd' value='((-START-STOP-))' />
-			&nbsp; <input type='submit' name='cmd' id='save' value='Save' />
-		</div>
-		<div>
 			<label for="autoStart"><input type="checkbox" id="autoStart" name="autoStart"
 				((-CHECKED-)) value="checked"/> Auto Start on Power On &nbsp;</label>
 		</div>
-			
-		<label for="settings"><h2>Settings:</h2></label>
+
+		<h2><label for="settings">Settings:</label>
+			&nbsp; <input type='submit' name='cmd' id='save' value='Save' />
+		</h2>
 		<textarea class='settings' id='settings' name='settings' cols='100' rows='20'>((-SETTINGS-))</textarea>
 
 		<h2><label for="logbook">Log Book</label>:
 			&nbsp; <input id='reloadLogbook' name='reloadLogbook' type="button" onclick="reloadLogbookFrame()" value="Reload" /><br/>
 		</h2>
 		<iframe onload='scrollToEnd();' name='logbook' id='logbook' title='log book' src='/logbook' height='400px'></iframe>
-
 	</form>
 	<div>&nbsp;</div>			
 </main>
