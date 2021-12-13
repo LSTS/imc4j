@@ -155,8 +155,11 @@ public class BackSeatServer extends NanoHTTPD {
                 createAndRedirectOutputLog();
             }
         }
+		catch (NumberFormatException e) {
+			// not doing anything
+		}
         catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("log file output '" + output.getName() + "' is not date parsable :: " + e.getMessage());
         }
     }
 
