@@ -120,7 +120,8 @@ public class MissionExecutive extends TcpClient {
 
     protected boolean imuIsAligned() {
         AlignmentState state = get(AlignmentState.class);
-        return state != null && state.state == pt.lsts.imc4j.msg.AlignmentState.STATE.AS_ALIGNED;
+        return state != null && (state.state == pt.lsts.imc4j.msg.AlignmentState.STATE.AS_ALIGNED ||
+                state.state == pt.lsts.imc4j.msg.AlignmentState.STATE.AS_SYSTEM_READY);
     }
 
     protected void setParam(String entity, String param, String value) {

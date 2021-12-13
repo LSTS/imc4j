@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import pt.lsts.imc4j.annotations.Consume;
@@ -31,12 +32,14 @@ import pt.lsts.imc4j.msg.PopUp.FLAGS;
 import pt.lsts.imc4j.msg.QueryEntityParameters;
 import pt.lsts.imc4j.msg.Sms;
 import pt.lsts.imc4j.msg.TransmissionRequest;
+import pt.lsts.imc4j.util.ManeuversUtil;
 import pt.lsts.imc4j.util.PojoConfig;
 import pt.lsts.imc4j.util.WGS84Utilities;
 
 public class ArpaoExecutive extends MissionExecutive {
 
 	private static final double MIN_SPEED = 0.2;
+	private static final String IMU_PLAN_ID = "MExec_imu";
 
     @Parameter(description = "Sequence of plans to execute after the vehicle is ready")
     public String[] plans = new String[] { };
@@ -64,15 +67,21 @@ public class ArpaoExecutive extends MissionExecutive {
 	
 	@Parameter(description = "If set ot true, the vehicle will align IMU prior to mission execution")
 	public boolean align_imu = true;
-	
+
+	@Parameter(description = "Wait for the IMU align plan end")
+	public boolean imu_wait_plan_end = true;
+
+	@Parameter(description = "Use the alternative IMU align plan")
+	public boolean imu_use_alternative_align_pattern = true;
+
 	@Parameter(description = "Length of IMU alignment track")
-	public double imu_align_length = 250;
+	public int imu_align_length = 250;
 
 	@Parameter(description = "Length of transit before IMU alignment track")
-	public double imu_transit_before_align_length = 0;
+	public int imu_transit_before_align_length = 0;
 
 	@Parameter(description = "Bearing of IMU alignment track")
-	public double imu_align_bearing = 250;
+	public int imu_align_bearing = 250;
 
     @Parameter(description = "Number of tries to align IMU (min=1)")
     public int imu_align_tries = 2;
@@ -209,7 +218,8 @@ public class ArpaoExecutive extends MissionExecutive {
 			return this::compass_calib;
 		} 
 		else if (align_imu) {
-			PlanSpecification spec = imu();
+			PlanSpecification spec = imu_use_alternative_align_pattern ? imu2() : imu();
+			spec.plan_id = IMU_PLAN_ID;
 			plan = spec.plan_id;
 			time = System.currentTimeMillis();
 			sendMessage("Starting IMU alignment.");
@@ -314,7 +324,33 @@ public class ArpaoExecutive extends MissionExecutive {
 	        }
 	    }
 	}
-	
+
+	public boolean isRunningPlan(String planName) {
+		PlanControlState pcs = get(PlanControlState.class);
+		if (pcs == null)
+			return false;
+
+		if ((pcs.state == PlanControlState.STATE.PCS_EXECUTING ||
+				pcs.state == PlanControlState.STATE.PCS_INITIALIZING) &&
+				(planName == null || planName.isEmpty() || pcs.plan_id == planName)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public boolean isReadyWithLastPlan(String planName) {
+		PlanControlState pcs = get(PlanControlState.class);
+		if (pcs == null)
+			return false;
+
+		if (pcs.state == PlanControlState.STATE.PCS_READY && pcs.plan_id.equals(planName)) {
+			return true;
+		}
+
+		return false;
+	}
+
 	public State compass_calib() {
 		print("compass_calib");
 
@@ -364,7 +400,7 @@ public class ArpaoExecutive extends MissionExecutive {
 			activate("IMU");
 		}
 		
-		if (imuIsAligned()) {
+		if (!imu_wait_plan_end && imuIsAligned()) {
 			print("Navigation is aligned");
 			stopPlan();
 			time = System.currentTimeMillis();
@@ -374,6 +410,14 @@ public class ArpaoExecutive extends MissionExecutive {
 		}
 
 		if (ready()) {
+			if (imu_wait_plan_end && imuIsAligned() && isReadyWithLastPlan(IMU_PLAN_ID)) {
+				print("Navigation is aligned");
+				time = System.currentTimeMillis();
+				plan = "";
+				sendMessage("Starting plan sequence execution.");
+				return this::plan_exec;
+			}
+
 		    if (imuAlignTriesCounter <= 0) {
 		        sendMessage("IMU alignment not successful... terminating...");
 		        return null;
@@ -381,7 +425,8 @@ public class ArpaoExecutive extends MissionExecutive {
 		    
 			print("Deactivating IMU");
 			deactivate("IMU");
-			PlanSpecification spec = imu();
+			PlanSpecification spec = imu_use_alternative_align_pattern ? imu2() : imu();
+			spec.plan_id = IMU_PLAN_ID;
 			plan = spec.plan_id;
 			time = System.currentTimeMillis();
 			sendMessage("Restarting IMU alignment.");
@@ -531,7 +576,64 @@ public class ArpaoExecutive extends MissionExecutive {
 		alignManeuverId = spec.maneuvers.get(2 + (offTrans > 0 ? 1 : 0)).maneuver_id;
 		return spec;
 	}
-		
+
+	public PlanSpecification imu2() {
+		double[] pos = position();
+
+		if (pos == null)
+			return null;
+
+		ArrayList<Maneuver> maneuvers = new ArrayList<>();
+
+		PopUp popup = new PopUp();
+		popup.lat = Math.toRadians(pos[0]);
+		popup.lon = Math.toRadians(pos[1]);
+		popup.speed = (float) Math.max(MIN_SPEED, speed_for_generated_maneuvers);
+		popup.speed_units = SpeedUnits.METERS_PS;
+		popup.flags.add(FLAGS.FLG_CURR_POS);
+		popup.duration = 30;
+		popup.z = 0;
+		popup.z_units = ZUnits.DEPTH;
+
+		maneuvers.add(popup);
+
+		int maxTries = Math.max(1, imu_align_tries);
+
+		double offTrans = imuAlignTriesCounter != maxTries ? 0 : Math.max(0, imu_transit_before_align_length);
+		double offBeforeAlign = Math.max(0, offTrans);
+		double offsetXBeforeAlign = offBeforeAlign > 0 ? Math.cos(Math.toRadians(imu_align_bearing)) * offBeforeAlign : 0;
+		double offsetYBeforeAlign = offBeforeAlign > 0 ? Math.sin(Math.toRadians(imu_align_bearing)) * offBeforeAlign : 0;
+
+		List<Offset> locsOffsets = new ArrayList<>();
+
+		if (offBeforeAlign > 0)
+			locsOffsets.add(new Offset(offsetXBeforeAlign, offsetYBeforeAlign));
+
+		List<double[]> rowsPoints = ManeuversUtil.calcRowsPoints(imu_align_length, imu_align_length,
+				20, 1.0, 0.0, true, Math.toRadians(imu_align_bearing), 0, true);
+		for (double[] pts : rowsPoints) {
+			locsOffsets.add(new Offset(offsetXBeforeAlign + pts[0], offsetYBeforeAlign + pts[1]));
+		}
+
+		for (Offset offset : locsOffsets) {
+			double[] loc1 = offset.x == 0 && offset.y == 0 ? pos
+					: WGS84Utilities.WGS84displace(pos[0], pos[1], 0, offset.x, offset.y, 0);
+			Goto man1 = new Goto();
+			man1.lat = Math.toRadians(loc1[0]);
+			man1.lon = Math.toRadians(loc1[1]);
+			man1.speed = (float) Math.max(MIN_SPEED, speed_for_generated_maneuvers);
+			man1.speed_units = SpeedUnits.METERS_PS;
+			man1.z = 0;
+			man1.z_units = ZUnits.DEPTH;
+
+			maneuvers.add(man1);
+		}
+
+		PlanSpecification spec = spec(maneuvers.toArray(new Maneuver[maneuvers.size()]));
+		alignManeuverId = spec.maneuvers.get(2 + (offTrans > 0 ? 1 : 0)).maneuver_id;
+		return spec;
+	}
+
 	public static void main(String[] args) throws Exception {
 
 		if (args.length != 1) {
