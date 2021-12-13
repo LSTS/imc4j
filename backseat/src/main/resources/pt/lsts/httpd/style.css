@@ -106,6 +106,34 @@ form iframe#logbook {
   color: white;
 }
 
+.led-green {
+  vertical-align: middle;
+  margin: 0 auto;
+  width: 24px;
+  height: 24px;
+  background-color: #ABFF00;
+  border-radius: 50%;
+  box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #304701 0 -1px 9px, #89FF00 0 2px 12px;
+}
+.led-yellow {
+  vertical-align: middle;
+  margin: 0 auto;
+  width: 24px;
+  height: 24px;
+  background-color: #FF0;
+  border-radius: 50%;
+  box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #808002 0 -1px 9px, #FF0 0 2px 12px;
+}
+.led-red {
+  vertical-align: middle;
+  margin: 0 auto;
+  width: 24px;
+  height: 24px;
+  background-color: #F00;
+  border-radius: 50%;
+  box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #441313 0 -1px 9px, rgba(255, 0, 0, 0.5) 0 2px 12px;
+}
+
 header {
   width: 285px;
   justify-content: center;
@@ -149,11 +177,32 @@ footer {
   }
 }
 
+@media(min-width: 400px) {
+  .led-green {
+    display: inline-block;
+  }
+  .led-yellow {
+    display: inline-block;
+  }
+  .led-red {
+    display: inline-block;
+  }
+}
+
 @media(min-width: 768px) {
   header,
   footer,
   main {
     width: 760px;
+  }
+  .led-green {
+    display: inline-block;
+  }
+  .led-yellow {
+    display: inline-block;
+  }
+  .led-red {
+    display: inline-block;
   }
 }
 

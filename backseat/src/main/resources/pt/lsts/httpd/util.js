@@ -65,10 +65,13 @@ function isRunning() {
 function updateStartStopState(state) {
     var isStarted = state === true || state === "true";
     var startStop = document.getElementById("startStop");
-    
+    var startStopLed = document.getElementById("startStopLed");
+
     var newValue = isStarted ? "Stop" : "Start";
     var isTheSame = startStop.value === newValue;
     startStop.value = newValue;
+
+    startStopLed.className = isStarted ? "led-green" : "led-red";
 
     // console.log(" '" + startStop.value + " '" + newValue + "'  " + isTheSame);
     if (!isTheSame) {
