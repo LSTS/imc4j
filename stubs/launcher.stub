@@ -98,8 +98,10 @@ A 'jre' folder is the preferred lookup for java, or the '/opt/lsts/jre/'." && ex
   fi
 fi
 
+# If SYNC_CLOCK true this will change in wait_for_clock()
 DATE=$(date +%Y-%m-%d_%H-%M-%S)
 OUTPUT="$RUN_HOME/log/$DATE.log"
+
 LATEST="$RUN_HOME/latest.log"
 PIDFILE="$RUN_HOME/pid"
 
@@ -167,6 +169,9 @@ wait_for_clock()
       echo "Waiting for the clock to be synchronized... ($(date)"
       sleep 1
     done
+
+    DATE=$(date +%Y-%m-%d_%H-%M-%S)
+    OUTPUT="$RUN_HOME/log/$DATE.log"
   fi
 }
 
