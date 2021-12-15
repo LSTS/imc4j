@@ -298,7 +298,9 @@ public class ArpaoExecutive extends MissionExecutive {
 		try {
 			if (iridium_updates) {
 				txRqst.req_id = requestIdConter++;
-				txRqst.comm_mean =  TransmissionRequest.COMM_MEAN.CMEAN_SATELLITE;
+				txRqst.comm_mean = TransmissionRequest.COMM_MEAN.CMEAN_SATELLITE;
+				txRqst.data_mode = TransmissionRequest.DATA_MODE.DMODE_TEXT;
+				txRqst.destination = "broadcast";
 				print("Sending Iridium with contents: '" + message + "'.");
 				send(txRqst);
 			}
