@@ -187,6 +187,7 @@ start()
     echo $pid > "$PIDFILE"
     echo "$NAME running with PID "$pid
     ln -s "$OUTPUT" "$LATEST"
+    echo "$OUTPUT" >> "$RUN_HOME/log/log-list"
 }
 
 wait_for_clock()
