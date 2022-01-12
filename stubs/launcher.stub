@@ -149,6 +149,31 @@ start()
     mkdir -p "$RUN_HOME/log"
     unlink "$LATEST" 2>/dev/null
     cd "$RUN_HOME"
+
+    # Avoid override log files
+    if [ -f "$OUTPUT" ]; then
+        echo 'Using an alternative log file name'
+        c=0
+        OUTPUT="$RUN_HOME/log/${DATE}_$c.log"
+        while [ -f "$OUTPUT" ]; do
+          let "c++"
+          if [[ $c -gt 1000 ]]; then
+             # start over
+            OUTPUT="$RUN_HOME/log/$DATE.log"
+            rm -f "$OUTPUT"
+            c=0
+            break
+          fi
+          OUTPUT="$RUN_HOME/log/${DATE}_$c.log"
+        done
+        # Now let us clear some old logs ahead
+        m=$((c + 5)) # needs to add 2 or more
+        while [[ $c -lt $m ]]; do
+          rm -f "$RUN_HOME/log/${DATE}_$c.log"
+          let "c++"
+        done
+    fi
+
     if [ -z ${RUN_AS_HTTP_SERVER+x} ]; then
        echo "Running with configuration \n  -> '$CONF_FILE'..."
       "$JAVA" -jar "$JARNAME" "$CONF_FILE" < /dev/null > "$OUTPUT" 2>&1 &
