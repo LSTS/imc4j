@@ -11,7 +11,9 @@ dependencies {
 task dist(type: Jar) {
     description = 'Generate fatjar for IMC API'
     group = 'Distribution'
-    from {configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    from {configurations.compile.collect { it.isDirectory() ? it : zipTree(it).matching {
+        exclude "module-info.class"
+    } } }
     with jar
     archiveBaseName = "imc4j"
     destinationDirectory = new java.io.File("$rootDir/dist")
@@ -20,7 +22,9 @@ task dist(type: Jar) {
 task pcreator(type: Jar) {
     description = 'Generate pcreator.jar'
     group = 'Distribution'
-    from {configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    from {configurations.compile.collect { it.isDirectory() ? it : zipTree(it).matching {
+        exclude "module-info.class"
+    } } }
     manifest {
         attributes 'Main-Class': 'pt.lsts.imc4j.util.PlanCreator'
     }

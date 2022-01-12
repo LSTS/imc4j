@@ -14,7 +14,9 @@ def jarTask(jarName, destFolder, mainClass) {
         group 'Distribution'
         description "Generate ${jarName}.jar"
 
-        from {configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+        from {configurations.compile.collect { it.isDirectory() ? it : zipTree(it).matching {
+            exclude "module-info.class"
+        } } }
         with jar
 
         manifest {
