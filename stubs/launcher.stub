@@ -7,6 +7,11 @@ PATH=/sbin:/bin:/usr/sbin:/usr/bin:$PATH
 ## (Don't use a path, it must be on the script folder.)
 #CONF_FILE_NAME="conf.props"
 
+## Uncomment to change the base directory used to write the output log
+## NOTE: USE AN ABSOLUTE PATH HERE
+## If set outside script, unset var to disable
+#LOG_BASE_DIR_OVERRIDE=""
+
 ## Uncomment to synchronize clock before start (with any text)
 ## If set outside script, unset var to disable
 @SYNC_CLOCK@SYNC_CLOCK="true"
@@ -74,6 +79,13 @@ RUN_HOME="$BASE_DIR"
 
 echo "Running >>>>> " $NAME " @ " $RUN_HOME
 
+# Testing and preparing output log folder
+if [ -z "${LOG_BASE_DIR_OVERRIDE}" ]; then
+  LOG_BASE_DIR_OVERRIDE="$RUN_HOME/log"
+fi
+mkdir -p "$LOG_BASE_DIR_OVERRIDE" || LOG_BASE_DIR_OVERRIDE="$RUN_HOME/log"
+echo "Logging to >>>>> '$LOG_BASE_DIR_OVERRIDE'"
+
 if [ -z "${CONF_FILE_NAME}" ]; then
   CONF_FILE="$RUN_HOME/$(echo "$PRG_NAME" | sed  's/\..*$//').props"
 else
@@ -102,7 +114,7 @@ fi
 
 # If SYNC_CLOCK true this will change in wait_for_clock()
 DATE=$(date +%Y-%m-%d_%H-%M-%S)
-OUTPUT="$RUN_HOME/log/$DATE.log"
+OUTPUT="$LOG_BASE_DIR_OVERRIDE/$DATE.log"
 
 LATEST="$RUN_HOME/latest.log"
 PIDFILE="$RUN_HOME/pid"
@@ -146,7 +158,7 @@ start()
 
     echo "Running with Java command: '$JAVA'..."
 
-    mkdir -p "$RUN_HOME/log"
+    mkdir -p "$LOG_BASE_DIR_OVERRIDE"
     unlink "$LATEST" 2>/dev/null
     cd "$RUN_HOME"
 
@@ -154,22 +166,22 @@ start()
     if [ -f "$OUTPUT" ]; then
         echo 'Using an alternative log file name'
         c=0
-        OUTPUT="$RUN_HOME/log/${DATE}_$c.log"
+        OUTPUT="$LOG_BASE_DIR_OVERRIDE/${DATE}_$c.log"
         while [ -f "$OUTPUT" ]; do
           let "c++"
           if [[ $c -gt 1000 ]]; then
              # start over
-            OUTPUT="$RUN_HOME/log/$DATE.log"
+            OUTPUT="$LOG_BASE_DIR_OVERRIDE/$DATE.log"
             rm -f "$OUTPUT"
             c=0
             break
           fi
-          OUTPUT="$RUN_HOME/log/${DATE}_$c.log"
+          OUTPUT="$LOG_BASE_DIR_OVERRIDE/${DATE}_$c.log"
         done
         # Now let us clear some old logs ahead
         m=$((c + 5)) # needs to add 2 or more
         while [[ $c -lt $m ]]; do
-          rm -f "$RUN_HOME/log/${DATE}_$c.log"
+          rm -f "$LOG_BASE_DIR_OVERRIDE/${DATE}_$c.log"
           let "c++"
         done
     fi
@@ -187,7 +199,7 @@ start()
     echo $pid > "$PIDFILE"
     echo "$NAME running with PID "$pid
     ln -s "$OUTPUT" "$LATEST"
-    echo "$OUTPUT" >> "$RUN_HOME/log/log-list"
+    echo "$OUTPUT" >> "$LOG_BASE_DIR_OVERRIDE/log-list"
 }
 
 wait_for_clock()
@@ -205,7 +217,7 @@ wait_for_clock()
     done
 
     DATE=$(date +%Y-%m-%d_%H-%M-%S)
-    OUTPUT="$RUN_HOME/log/$DATE.log"
+    OUTPUT="$LOG_BASE_DIR_OVERRIDE/$DATE.log"
   fi
 }
 
