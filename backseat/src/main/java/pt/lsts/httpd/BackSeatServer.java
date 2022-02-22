@@ -34,14 +34,14 @@ public class BackSeatServer extends NanoHTTPD {
         BackSeatDriver,
         MissionExecutive
     }
-    
+
     @Parameter(description = "Auto Start on Power On")
     public boolean autoStartOnPowerOn = false;
 
     public String copyYear = new SimpleDateFormat("yyyy").format(new Date(System.currentTimeMillis()));
-    
+
     protected boolean allowHotConfig = false;
-    
+
     protected TcpClient driver;
     protected File output;
     protected BackSeatType type;
@@ -50,11 +50,12 @@ public class BackSeatServer extends NanoHTTPD {
     protected File configServerFile = new File(this.getClass().getSimpleName().toLowerCase() + ".ini");
 	protected File configDriverFile;
 	protected File logFile;
+	protected boolean logJustServe = false;
 
 	public BackSeatServer(TcpClient back_seat, int http_port, boolean allowHotConfig, String configFilePath,
-						  String logFilePath) {
+						  String logFilePath, boolean logJustServe) {
 		super(http_port);
-		
+
 		this.allowHotConfig = allowHotConfig;
 
 		if (configServerFile.exists()) {
@@ -64,11 +65,11 @@ public class BackSeatServer extends NanoHTTPD {
 		    catch (Exception e) {
 		        e.printStackTrace();
 		    }
-		}       
-		
+		}
+
 		this.driver = back_seat;
 		fillType();
-		
+
 		switch (type) {
             case MissionExecutive:
                 ((MissionExecutive) driver).setUseSystemExitOrStop(false);
@@ -87,15 +88,19 @@ public class BackSeatServer extends NanoHTTPD {
 			catch (Exception e) {
 				e.printStackTrace();
 			}
-		}		
+		}
 
 		logFile = logFilePath != null ? new File(logFilePath) : null;
 		try { logFile.createNewFile(); } catch (Exception e) {};
 		if (!logFile.exists())
 			logFile = null;
+		if (logFilePath == null)
+			this.logJustServe = false;
+		else
+			this.logJustServe = logJustServe;
 		createAndRedirectOutputLog();
 		PeriodicCallbacks.register(this);
-        
+
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 		    public void run() {
 		    	stop();
@@ -103,24 +108,24 @@ public class BackSeatServer extends NanoHTTPD {
 		        PeriodicCallbacks.unregister(this);
 		    }
 		}));
-		
+
         System.out.println("Listening on port " + http_port + "...\n");
 
 		try {
-			start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);			
+			start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
         }
 		catch (IOException ioe) {
             System.err.println("Couldn't start server:\n" + ioe);
             System.exit(-1);
         }
-		
+
         if (autoStartOnPowerOn) {
             try {
                 Thread.sleep(5000);
             }
             catch (Exception e) {
             }
-            
+
             try {
                 startBackSeat();
             }
@@ -128,7 +133,7 @@ public class BackSeatServer extends NanoHTTPD {
                 e1.printStackTrace();
             }
         }
-		
+
 		while(true) {
 			try {
 				Thread.sleep(1000);
@@ -171,15 +176,17 @@ public class BackSeatServer extends NanoHTTPD {
 			output = new File("log/" + sdf.format(new Date()) + ".log");
 		}
 
-		try {
-			System.out.println("Redirecting output to " + output.getAbsolutePath());
-			PrintStream ps = new PrintStream(new BufferedOutputStream(new FileOutputStream(output)), true);
-			System.setOut(ps);
-			System.setErr(ps);
-            System.out.println("Done redirecting output to " + output.getAbsolutePath());
-		}
-		catch (Exception e) {
-			e.printStackTrace();
+		if (!logJustServe) {
+			try {
+				System.out.println("Redirecting output to " + output.getAbsolutePath());
+				PrintStream ps = new PrintStream(new BufferedOutputStream(new FileOutputStream(output)), true);
+				System.setOut(ps);
+				System.setErr(ps);
+				System.out.println("Done redirecting output to " + output.getAbsolutePath());
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
     }
 
@@ -236,13 +243,13 @@ public class BackSeatServer extends NanoHTTPD {
 	        System.out.println("Trying to starting a running " + name + ", please stop it first.");
 	        return;
 	    }
-	    
+
         System.out.println("Starting " + name + "...");
 
         if (driver.getState() == State.TERMINATED) {
             createNewDriverAndConfigure();
         }
-        
+
         try {
             switch (type) {
                 case MissionExecutive:
@@ -251,9 +258,9 @@ public class BackSeatServer extends NanoHTTPD {
                 default:
                     break;
             }
-            
+
             driver.connect();
-            
+
             switch (type) {
                 case MissionExecutive:
                     ((MissionExecutive) driver).launch();
@@ -290,7 +297,7 @@ public class BackSeatServer extends NanoHTTPD {
             driver.interrupt();
 
             createNewDriverAndConfigure();
-            
+
             System.out.println("Stopped " + name);
         }
         catch (Exception e) {
@@ -364,7 +371,7 @@ public class BackSeatServer extends NanoHTTPD {
 
 		        manifest = manifest.replaceFirst("\\$\\$SHORTNAME\\$\\$", name.replace(" ", "").substring(0, 12));
 		        manifest = manifest.replaceFirst("\\$\\$NAME\\$\\$", name);
-		        
+
 		        return newChunkedResponse(Status.OK, "text/json", new ByteArrayInputStream(manifest.getBytes()));
 		    }
 		    catch (Exception e) {
@@ -408,7 +415,7 @@ public class BackSeatServer extends NanoHTTPD {
 				    } else {
 				        System.out.println("Backseat settings are not allowed at this moment. Wait till stop first.");
 					}
-    				
+
     				String checkAutoStart = parms.get("autoStart");
     				autoStartOnPowerOn = checkAutoStart != null && checkAutoStart.equalsIgnoreCase("checked");
                     System.out.println("Auto start on power on " + (autoStartOnPowerOn ? "enabled" : "disabled"));
@@ -454,16 +461,19 @@ public class BackSeatServer extends NanoHTTPD {
 	public static void main(String[] args) throws Exception {
 		if (args.length < 2) {
             System.err.println("Usage: java -jar BackSeatServer.jar <class> <port>");
-            System.err.println("    <class>                 - The full class name to run");
-            System.err.println("    <port>                  - The http server port for this service");
             System.err.println("    <--hot-config>?         - To allow change of config while running");
 			System.err.println("    <--config <file_path>>? - To allow change of config while running");
+			System.err.println("    <--log <file_path>>?    - To set the name of the log file");
+			System.err.println("    <--log-just-serve>?     - This will make the log just being served and not written (needs --log flag");
+			System.err.println("    <class>                 - The full class name to run");
+			System.err.println("    <port>                  - The http server port for this service");
 			System.exit(1);
 		}
 
 		boolean hotConfig = false;
 		String configFilePath = null;
 		String logFilePath = null;
+		boolean logJustServe = false;
 
 		for (int i = 2; i < args.length; i++) {
 			if ("--hot-config".equalsIgnoreCase(args[i].trim())) {
@@ -472,11 +482,17 @@ public class BackSeatServer extends NanoHTTPD {
 				configFilePath = args[++i].trim();
 			} else if ("--log".equalsIgnoreCase(args[i].trim())) {
 				logFilePath = args[++i].trim();
+			} if ("--log-just-serve".equalsIgnoreCase(args[i].trim())) {
+				logJustServe = true;
 			}
 		}
 
+		if (logFilePath == null) {
+			logJustServe = false;
+		}
+
 		new BackSeatServer((TcpClient) Class.forName(args[0]).getDeclaredConstructor().newInstance(),
-				Integer.parseInt(args[1]), hotConfig, configFilePath, logFilePath);
+				Integer.parseInt(args[1]), hotConfig, configFilePath, logFilePath, logJustServe);
 		System.exit(0);
 	}
 }
