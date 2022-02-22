@@ -447,7 +447,7 @@ public class DistressSurvey extends TimedFSM {
         if (usePayload && !payloadToActivate.isEmpty()) {
             for (String pl : payloadToActivate.keySet()) {
                 HashMap<String, String> pv = payloadToActivate.get(pl);
-                if (pv != null && !pv.isEmpty()) {
+                if (pv == null || pv.isEmpty()) {
                     pls += pl + " (no params);";
                     activate(pl);
                 }
