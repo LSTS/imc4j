@@ -5,7 +5,7 @@ mainClassName = 'pt.lsts.autonomy.soi.SoiExecutive'
 
 dependencies {
     compile project(':endurance')
-    compile 'org.nanohttpd:nanohttpd:2.3.0'
+    compile 'org.nanohttpd:nanohttpd:2.3.1'
     compile 'org.knowm.xchart:xchart:3.6.2'
 }
 

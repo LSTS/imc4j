@@ -13,6 +13,8 @@ import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
@@ -320,9 +322,29 @@ public class BackSeatServer extends NanoHTTPD {
         }
     }
 
-    @Override
-    public Response serve(String uri, Method method, Map<String, String> headers, Map<String, String> parms,
-            Map<String, String> files) {
+    public Response serve(IHTTPSession session) {
+        Map<String, String> files = new HashMap<>();
+        Method method = session.getMethod();
+        if (Method.PUT.equals(method) || Method.POST.equals(method)) {
+            try {
+                session.parseBody(files);
+            } catch (IOException ioe) {
+                return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, NanoHTTPD.MIME_PLAINTEXT,
+                        "SERVER INTERNAL ERROR: IOException: " + ioe.getMessage());
+            } catch (ResponseException re) {
+                return newFixedLengthResponse(re.getStatus(), NanoHTTPD.MIME_PLAINTEXT, re.getMessage());
+            }
+        }
+
+        //Map<String, String> parms = session.getParms();
+        //parms.put(NanoHTTPD.QUERY_STRING_PARAMETER, session.getQueryParameterString());
+        //return serve(session.getUri(), method, session.getHeaders(), parms, files);
+
+        String uri = session.getUri();
+        //Method method
+        Map<String, String> headers = session.getHeaders();
+        Map<String, List<String>> parms = session.getParameters();
+        //Map<String, String> files;
 
         if (uri.equals("/state")) {
             try {
@@ -382,7 +404,10 @@ public class BackSeatServer extends NanoHTTPD {
         String cmd = "none";
 
         if (parms.get("cmd") != null) {
-            cmd = parms.get("cmd");
+            List<String> pList = parms.get("cmd");
+            if (pList != null && !pList.isEmpty()) {
+                cmd = pList.get(0);
+            }
         }
 
         switch (cmd) {
@@ -406,7 +431,7 @@ public class BackSeatServer extends NanoHTTPD {
                 try {
                     if (!driver.isAlive() || allowHotConfig) {
                         try {
-                            loadSettings(parms.get("settings"));
+                            loadSettings(parms.get("settings").get(0));
                             saveSettings();
                         }
                         catch (Exception e) {
@@ -416,7 +441,10 @@ public class BackSeatServer extends NanoHTTPD {
                         System.out.println("Backseat settings are not allowed at this moment. Wait till stop first.");
                     }
 
-                    String checkAutoStart = parms.get("autoStart");
+                    List<String> autoStartParam = parms.get("autoStart");
+                    String checkAutoStart = autoStartParam != null && !autoStartParam.isEmpty()
+                            ? parms.get("autoStart").get(0)
+                            : null;
                     autoStartOnPowerOn = checkAutoStart != null && checkAutoStart.equalsIgnoreCase("checked");
                     System.out.println("Auto start on power on " + (autoStartOnPowerOn ? "enabled" : "disabled"));
                     PojoConfig.writeProperties(this, configServerFile);
