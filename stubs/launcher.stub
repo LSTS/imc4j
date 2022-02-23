@@ -187,7 +187,7 @@ start()
     fi
 
     if [ -z ${RUN_AS_HTTP_SERVER+x} ]; then
-       echo "Running with configuration " && echo"  -> '$CONF_FILE'..."
+       echo "Running with configuration " && echo "  -> '$CONF_FILE'..."
       "$JAVA" -jar "$JARNAME" "$CONF_FILE" < /dev/null > "$OUTPUT" 2>&1 &
       pid=$!
     else
