@@ -1034,7 +1034,7 @@ public class DistressSurvey extends TimedFSM {
         }
     }
 
-    private <M extends Maneuver> void sendPlanToVehicleDb(String planName, M... maneuvers) {
+    private void sendPlanToVehicleDb(String planName, Maneuver... maneuvers) {
         try {
             PlanDB msg = PlanPointsUtil.createPlanDBAdd(PlanPointsUtil
                     .createPlanSpecification(planCreationPrefix + planName, maneuvers));

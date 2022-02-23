@@ -81,7 +81,7 @@ public class PlanPointsUtil {
         return man;
     }
 
-    public static <M extends Maneuver> PlanSpecification createPlanSpecification(String planName, M... maneuvers) {
+    public static PlanSpecification createPlanSpecification(String planName, Maneuver... maneuvers) {
         PlanSpecification pspec = new PlanSpecification();
         pspec.plan_id = planName;
 
