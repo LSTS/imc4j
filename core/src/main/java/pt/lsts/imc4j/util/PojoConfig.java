@@ -43,13 +43,13 @@ public class PojoConfig {
 	}
 
 	public static <T> T create(Class<T> pojoClass, Properties props) throws Exception {
-		T pojo = pojoClass.newInstance();
+		T pojo = pojoClass.getDeclaredConstructor().newInstance();
 		setProperties(pojo, props);
 		return pojo;
 	}
 
 	public static <T> T create(Class<T> pojoClass, String[] args) throws Exception {
-		T pojo = pojoClass.newInstance();
+		T pojo = pojoClass.getDeclaredConstructor().newInstance();
 		setProperties(pojo, asProperties(args));
 		return pojo;
 	}
