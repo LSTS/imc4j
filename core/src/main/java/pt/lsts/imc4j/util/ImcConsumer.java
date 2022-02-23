@@ -35,7 +35,7 @@ public class ImcConsumer {
 					if (!consumeMethods.containsKey(c)) {
 						consumeMethods.put(c, new ArrayList<Method>());
 					}
-					if (!m.isAccessible())
+					if (!m.canAccess(pojo))
 						m.setAccessible(true);
 
 					consumeMethods.get(c).add(m);
