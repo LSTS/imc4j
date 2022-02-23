@@ -6,8 +6,9 @@ plugins {
 apply plugin: 'de.undercouch.download'
 
 dependencies {
-    compile project(':core')
-    compile 'com.squareup:javapoet:1.12.1'
+    implementation project(':core')
+    implementation project(':core').sourceSets.main.runtimeClasspath
+    implementation 'com.squareup:javapoet:1.12.1'
 }
 
 import de.undercouch.gradle.tasks.download.Download
@@ -15,7 +16,7 @@ import com.gorylenko.GenerateGitPropertiesTask
 
 task generateMessages(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
-    main = 'pt.lsts.imc4j.generator.IMCGenerator'
+    mainClass = 'pt.lsts.imc4j.generator.IMCGenerator'
     workingDir = 'src/main/'
     // arguments to pass to the application
 

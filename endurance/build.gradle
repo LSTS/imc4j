@@ -1,3 +1,4 @@
 dependencies {
-    compile project(':core')
+    implementation project(':core')
+    implementation project(':core').sourceSets.main.runtimeClasspath
 }

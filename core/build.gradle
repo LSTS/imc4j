@@ -1,19 +1,21 @@
-jar.baseName = "imc4j"
+jar.archiveBaseName = "imc4j"
 
 dependencies {
-    compile 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
-    compile 'javax.xml.bind:jaxb-api:2.3.0'
-    compile 'javax.annotation:javax.annotation-api:1.3.2'
+    implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
+    implementation 'javax.xml.bind:jaxb-api:2.3.0'
+    implementation 'javax.annotation:javax.annotation-api:1.3.2'
 
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
 
 task dist(type: Jar) {
     description = 'Generate fatjar for IMC API'
     group = 'Distribution'
-    from {configurations.compile.collect { it.isDirectory() ? it : zipTree(it).matching {
+    duplicatesStrategy DuplicatesStrategy.EXCLUDE
+    from {configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it).matching {
         exclude "module-info.class"
     } } }
+    duplicatesStrategy DuplicatesStrategy.INCLUDE
     with jar
     archiveBaseName = "imc4j"
     destinationDirectory = new java.io.File("$rootDir/dist")
@@ -22,9 +24,11 @@ task dist(type: Jar) {
 task pcreator(type: Jar) {
     description = 'Generate pcreator.jar'
     group = 'Distribution'
-    from {configurations.compile.collect { it.isDirectory() ? it : zipTree(it).matching {
+    duplicatesStrategy DuplicatesStrategy.EXCLUDE
+    from {configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it).matching {
         exclude "module-info.class"
     } } }
+    duplicatesStrategy DuplicatesStrategy.INCLUDE
     manifest {
         attributes 'Main-Class': 'pt.lsts.imc4j.util.PlanCreator'
     }

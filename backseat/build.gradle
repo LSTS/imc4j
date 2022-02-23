@@ -4,9 +4,10 @@ apply plugin: 'application'
 mainClassName = 'pt.lsts.autonomy.soi.SoiExecutive'
 
 dependencies {
-    compile project(':endurance')
-    compile 'org.nanohttpd:nanohttpd:2.3.1'
-    compile 'org.knowm.xchart:xchart:3.6.2'
+    implementation project(':endurance')
+    implementation project(':endurance').sourceSets.main.runtimeClasspath
+    implementation 'org.nanohttpd:nanohttpd:2.3.1'
+    implementation 'org.knowm.xchart:xchart:3.6.2'
 }
 
 def jarTask(jarName, destFolder, mainClass) {
@@ -14,7 +15,8 @@ def jarTask(jarName, destFolder, mainClass) {
         group 'Distribution'
         description "Generate ${jarName}.jar"
 
-        from {configurations.compile.collect { it.isDirectory() ? it : zipTree(it).matching {
+        duplicatesStrategy DuplicatesStrategy.INCLUDE
+        from {configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it).matching {
             exclude "module-info.class"
         } } }
         with jar
@@ -23,8 +25,8 @@ def jarTask(jarName, destFolder, mainClass) {
             attributes 'Main-Class': mainClass
         }
 
-        archiveName "${jarName}.jar"
-        destinationDir (new java.io.File("$rootDir/$destFolder"))
+        archiveFileName = "${jarName}.jar"
+        destinationDirectory = (new java.io.File("$rootDir/$destFolder"))
     }
 }
 
