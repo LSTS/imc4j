@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.function.Function;
@@ -252,7 +253,7 @@ public class DistressSurvey extends TimedFSM {
 
     private SurveyPatternEnum surveyPattern = SurveyPatternEnum.DEFAULT;
 
-    private HashMap<String, HashMap<String, String>> payloadToActivate = new LinkedHashMap<>();
+    private Map<String, Map<String, String>> payloadToActivate = new LinkedHashMap<>();
 
     private double patternLatDegsForPlan = Double.NaN;
     private double patternLonDegsForPlan = Double.NaN;
@@ -432,7 +433,7 @@ public class DistressSurvey extends TimedFSM {
         sb.append("Payloads Set:");
         for (String ent : payloadToActivate.keySet()) {
             sb.append("\n  Payload: ").append(ent).append(" {");
-            HashMap<String, String> params = payloadToActivate.get(ent);
+            Map<String, String> params = payloadToActivate.get(ent);
             for (String v : params.keySet()) {
                 sb.append("\n    ").append(v).append("=").append(params.get(v)).append(";");
             }
@@ -446,7 +447,7 @@ public class DistressSurvey extends TimedFSM {
         String pls = "";
         if (usePayload && !payloadToActivate.isEmpty()) {
             for (String pl : payloadToActivate.keySet()) {
-                HashMap<String, String> pv = payloadToActivate.get(pl);
+                Map<String, String> pv = payloadToActivate.get(pl);
                 if (pv == null || pv.isEmpty()) {
                     pls += pl + " (no params);";
                     activate(pl);
