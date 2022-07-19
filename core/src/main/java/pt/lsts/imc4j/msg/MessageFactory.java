@@ -137,6 +137,8 @@ public class MessageFactory {
 
 	public static final int ID_AcousticStatus = 216;
 
+	public static final int ID_AcousticRelease = 217;
+
 	public static final int ID_Rpm = 250;
 
 	public static final int ID_Voltage = 251;
@@ -473,6 +475,8 @@ public class MessageFactory {
 
 	public static final int ID_TCPStatus = 522;
 
+	public static final int ID_AssetReport = 525;
+
 	public static final int ID_Abort = 550;
 
 	public static final int ID_PlanSpecification = 551;
@@ -637,7 +641,25 @@ public class MessageFactory {
 
 	public static final int ID_HomePosition = 909;
 
+	public static final int ID_CurrentProfile = 1014;
+
+	public static final int ID_CurrentProfileCell = 1015;
+
+	public static final int ID_ADCPBeam = 1016;
+
+	public static final int ID_GpioState = 2000;
+
+	public static final int ID_GpioStateGet = 2001;
+
+	public static final int ID_GpioStateSet = 2002;
+
+	public static final int ID_ColoredDissolvedOrganicMatter = 2003;
+
+	public static final int ID_FluorescentDissolvedOrganicMatter = 2004;
+
 	public static final int ID_TotalMagIntensity = 2006;
+
+	public static final int ID_CommRestriction = 2010;
 
 	public static Message create(int mgid) {
 		switch(mgid) {
@@ -841,6 +863,9 @@ public class MessageFactory {
 			}
 			case ID_AcousticStatus: {
 				return new AcousticStatus();
+			}
+			case ID_AcousticRelease: {
+				return new AcousticRelease();
 			}
 			case ID_Rpm: {
 				return new Rpm();
@@ -1346,6 +1371,9 @@ public class MessageFactory {
 			case ID_TCPStatus: {
 				return new TCPStatus();
 			}
+			case ID_AssetReport: {
+				return new AssetReport();
+			}
 			case ID_Abort: {
 				return new Abort();
 			}
@@ -1592,8 +1620,35 @@ public class MessageFactory {
 			case ID_HomePosition: {
 				return new HomePosition();
 			}
+			case ID_CurrentProfile: {
+				return new CurrentProfile();
+			}
+			case ID_CurrentProfileCell: {
+				return new CurrentProfileCell();
+			}
+			case ID_ADCPBeam: {
+				return new ADCPBeam();
+			}
+			case ID_GpioState: {
+				return new GpioState();
+			}
+			case ID_GpioStateGet: {
+				return new GpioStateGet();
+			}
+			case ID_GpioStateSet: {
+				return new GpioStateSet();
+			}
+			case ID_ColoredDissolvedOrganicMatter: {
+				return new ColoredDissolvedOrganicMatter();
+			}
+			case ID_FluorescentDissolvedOrganicMatter: {
+				return new FluorescentDissolvedOrganicMatter();
+			}
 			case ID_TotalMagIntensity: {
 				return new TotalMagIntensity();
+			}
+			case ID_CommRestriction: {
+				return new CommRestriction();
 			}
 			default: {
 				return null;
@@ -1807,6 +1862,9 @@ public class MessageFactory {
 			}
 			case "AcousticStatus": {
 				return ID_AcousticStatus;
+			}
+			case "AcousticRelease": {
+				return ID_AcousticRelease;
 			}
 			case "Rpm": {
 				return ID_Rpm;
@@ -2312,6 +2370,9 @@ public class MessageFactory {
 			case "TCPStatus": {
 				return ID_TCPStatus;
 			}
+			case "AssetReport": {
+				return ID_AssetReport;
+			}
 			case "Abort": {
 				return ID_Abort;
 			}
@@ -2558,8 +2619,35 @@ public class MessageFactory {
 			case "HomePosition": {
 				return ID_HomePosition;
 			}
+			case "CurrentProfile": {
+				return ID_CurrentProfile;
+			}
+			case "CurrentProfileCell": {
+				return ID_CurrentProfileCell;
+			}
+			case "ADCPBeam": {
+				return ID_ADCPBeam;
+			}
+			case "GpioState": {
+				return ID_GpioState;
+			}
+			case "GpioStateGet": {
+				return ID_GpioStateGet;
+			}
+			case "GpioStateSet": {
+				return ID_GpioStateSet;
+			}
+			case "ColoredDissolvedOrganicMatter": {
+				return ID_ColoredDissolvedOrganicMatter;
+			}
+			case "FluorescentDissolvedOrganicMatter": {
+				return ID_FluorescentDissolvedOrganicMatter;
+			}
 			case "TotalMagIntensity": {
 				return ID_TotalMagIntensity;
+			}
+			case "CommRestriction": {
+				return ID_CommRestriction;
 			}
 			default: {
 				return -1;
