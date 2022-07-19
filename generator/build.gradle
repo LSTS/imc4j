@@ -8,7 +8,9 @@ apply plugin: 'de.undercouch.download'
 dependencies {
     implementation project(':core')
     implementation project(':core').sourceSets.main.runtimeClasspath
-    implementation 'com.squareup:javapoet:1.12.1'
+    implementation 'com.squareup:javapoet:1.13.0'
+    implementation 'javax.activation:activation:1.1.1'
+    implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.0'
 }
 
 import de.undercouch.gradle.tasks.download.Download
