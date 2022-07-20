@@ -46,6 +46,7 @@ public abstract class BackSeatDriver extends TcpClient {
 	protected boolean paused = true, finished = false;
 	protected String endPlan = null, plan_name = "back_seat";
 	private Reference reference = new Reference();
+	private Reference referenceStart = new Reference();
 	private final double MAX_NEAR_DIST = 50;
 	
 	private static boolean IRIDIUM_SIMULATION = false;
@@ -72,7 +73,27 @@ public abstract class BackSeatDriver extends TcpClient {
 		reference.lon = Math.toRadians(lonDegs);
 		reference.flags.add(FLAGS.FLAG_LOCATION);
 	}
-	
+
+	public void setStartLocation(double latDegs, double lonDegs) {
+		referenceStart.lat = Math.toRadians(latDegs);
+		referenceStart.lon = Math.toRadians(lonDegs);
+		referenceStart.flags.clear();
+		referenceStart.flags.add(FLAGS.FLAG_START_POINT);
+
+		//Also clear the direct flag on ref
+		reference.flags.remove(FLAGS.FLAG_DIRECT);
+	}
+
+	public void setStartLocationClear() {
+		referenceStart.lat = 0;
+		referenceStart.lon = 0;
+		referenceStart.flags.clear();
+		referenceStart.flags.add(FLAGS.FLAG_DIRECT);
+
+		//Also set the direct flag on ref, because referenceStart is sent only if flag FLAG_START_POINT
+		reference.flags.add(FLAGS.FLAG_DIRECT);
+	}
+
 	public double[] getDestinationDegs() {
 		return new double[] {Math.toDegrees(reference.lat), Math.toDegrees(reference.lon)};
 	}
@@ -352,6 +373,14 @@ public abstract class BackSeatDriver extends TcpClient {
 					return;
 
 				update(curState);
+
+				try {
+					if (referenceStart.flags.contains(FLAGS.FLAG_START_POINT)) {
+						send(referenceStart);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 
 				try {
 					send(reference);
