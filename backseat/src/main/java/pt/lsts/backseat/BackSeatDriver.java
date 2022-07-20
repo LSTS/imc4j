@@ -74,11 +74,16 @@ public abstract class BackSeatDriver extends TcpClient {
 		reference.flags.add(FLAGS.FLAG_LOCATION);
 	}
 
-	public void setStartLocation(double latDegs, double lonDegs) {
+	public void setStartLocation(double latDegs, double lonDegs, double depth) {
 		referenceStart.lat = Math.toRadians(latDegs);
 		referenceStart.lon = Math.toRadians(lonDegs);
 		referenceStart.flags.clear();
 		referenceStart.flags.add(FLAGS.FLAG_START_POINT);
+		referenceStart.z = new DesiredZ();
+		if (depth >= 0) {
+			referenceStart.z.value = (float) depth;
+			referenceStart.z.z_units = ZUnits.DEPTH;
+		}
 
 		//Also clear the direct flag on ref
 		reference.flags.remove(FLAGS.FLAG_DIRECT);
@@ -89,6 +94,7 @@ public abstract class BackSeatDriver extends TcpClient {
 		referenceStart.lon = 0;
 		referenceStart.flags.clear();
 		referenceStart.flags.add(FLAGS.FLAG_DIRECT);
+		referenceStart.z = null;
 
 		//Also set the direct flag on ref, because referenceStart is sent only if flag FLAG_START_POINT
 		reference.flags.add(FLAGS.FLAG_DIRECT);
