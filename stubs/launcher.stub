@@ -10,7 +10,9 @@ PATH=/sbin:/bin:/usr/sbin:/usr/bin:$PATH
 ## Uncomment to change the base directory used to write the output log
 ## NOTE: USE AN ABSOLUTE PATH HERE
 ## If set outside script, unset var to disable
-#LOG_BASE_DIR_OVERRIDE=""
+## You can use PRG_NAME (don't use $PRG_NAME because is not set at this point
+## but will be replaced below)
+#LOG_BASE_DIR_OVERRIDE="/opt/lsts/dune/log/$(hostname)/_backseat/PRG_NAME"
 
 ## Uncomment to synchronize clock before start (with any text)
 ## If set outside script, unset var to disable
@@ -82,6 +84,8 @@ echo "Running >>>>>  $NAME  @  $RUN_HOME"
 # Testing and preparing output log folder
 if [ -z "${LOG_BASE_DIR_OVERRIDE}" ]; then
   LOG_BASE_DIR_OVERRIDE="$RUN_HOME/log"
+else
+  LOG_BASE_DIR_OVERRIDE="$(echo $LOG_BASE_DIR_OVERRIDE | sed "s/PRG_NAME/$PRG_NAME/")"
 fi
 mkdir -p "$LOG_BASE_DIR_OVERRIDE" || LOG_BASE_DIR_OVERRIDE="$RUN_HOME/log"
 echo "Logging to >>>>> '$LOG_BASE_DIR_OVERRIDE'"
