@@ -4,6 +4,8 @@
 pid
 log
 
+*.puml
+
 bin/
 */bin/
 /.gradle/
