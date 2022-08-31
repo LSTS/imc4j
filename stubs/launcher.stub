@@ -27,10 +27,11 @@ PATH=/sbin:/bin:/usr/sbin:/usr/bin:$PATH
 #SERVER_PORT="@HTTP_PORT@"
 
 ## -- No need to change beyond this point -- ##
-JARNAME="@JARNAME@"
 
 ## Don't change this, it will be changed by the install command
 BASE_DIR_OVERRIDE=""
+
+JARNAME="@JARNAME@"
 
 # Settings to run with an HTTP server
 CLASS_BACKSEAT="@CLASS_BACKSEAT@"
