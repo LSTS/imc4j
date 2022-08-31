@@ -3,6 +3,16 @@
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin:$PATH
 
+# Don't change the unset section
+# This is to work well with services start
+unset CONF_FILE_NAME
+unset LOG_BASE_DIR_OVERRIDE
+unset SYNC_CLOCK
+unset RUN_AS_HTTP_SERVER
+unset SERVER_PORT
+unset HOT_CONFIG
+#---- end unset section
+
 ## Uncomment to override the default ("<script_name>.props")
 ## (Don't use a path, it must be on the script folder.)
 #CONF_FILE_NAME="conf.props"
