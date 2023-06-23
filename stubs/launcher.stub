@@ -171,6 +171,23 @@ install()
     echo "SUB=$SUB"
     $SUB
     [ -e /etc/rc.d/ ] && echo "Installing $NAME at /etc/rc.d/" && ln -s "$(realpath "$PRG")" "/etc/rc.d/${0%.*}"
+
+    [ -e /etc/systemd/system/ ] && echo "Installing $NAME service at /etc/systemd/system/" && \
+        cat > /etc/systemd/system/${0%.*}.service <<EOF
+[Unit]
+Description=Script to launch $NAME
+Wants=network-online.target
+After=network.target network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/bin/sh -c '$(realpath "$PRG") restart'
+ExecStop=/bin/sh -c '$(realpath "$PRG") stop &'
+
+[Install]
+WantedBy=multi-user.target
+EOF
 }
 
 start()
