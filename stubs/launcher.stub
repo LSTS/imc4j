@@ -22,7 +22,7 @@ unset HOT_CONFIG
 ## If set outside script, unset var to disable
 ## You can use PRG_NAME (don't use $PRG_NAME because is not set at this point
 ## but will be replaced below)
-#LOG_BASE_DIR_OVERRIDE="/opt/lsts/dune/log/$(hostname)/_backseat/PRG_NAME"
+#LOG_BASE_DIR_OVERRIDE="/opt/lsts/dune/log/$(hostname | sed 's/-aux//')/_backseat/PRG_NAME"
 
 ## Uncomment to synchronize clock before start (with any text)
 ## If set outside script, unset var to disable
