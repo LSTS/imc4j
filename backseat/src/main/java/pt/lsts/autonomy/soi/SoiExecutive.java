@@ -510,7 +510,8 @@ public class SoiExecutive extends TimedFSM {
 			double min_dist = 4 * cur_pos[2];
 
 			if (dist < min_dist) {
-				print("Starting to ascend.");
+				print("!!!!!!!!!! Starting to ascend, getting close to destination.  " + Math.round(dist) + " < "
+						+ Math.round(min_dist) + " (cur depth " + Math.round(cur_pos[2]) + ")");
 				return this::ascend;
 			}
 		} catch (Exception e) {
