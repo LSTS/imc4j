@@ -137,8 +137,6 @@ public class MessageFactory {
 
 	public static final int ID_AcousticStatus = 216;
 
-	public static final int ID_AcousticRelease = 217;
-
 	public static final int ID_Rpm = 250;
 
 	public static final int ID_Voltage = 251;
@@ -423,9 +421,11 @@ public class MessageFactory {
 
 	public static final int ID_Alignment = 495;
 
-	public static final int ID_StationKeepingExtended = 496;
+	public static final int ID_FollowCommand = 496;
 
-	public static final int ID_ManeuverDone = 497;
+	public static final int ID_Command = 497;
+
+	public static final int ID_FollowCommandState = 498;
 
 	public static final int ID_Magnetometer = 499;
 
@@ -539,6 +539,10 @@ public class MessageFactory {
 
 	public static final int ID_ImageTxSettings = 703;
 
+	public static final int ID_ManeuverDone = 719;
+
+	public static final int ID_StationKeepingExtended = 720;
+
 	public static final int ID_RemoteState = 750;
 
 	public static final int ID_Target = 800;
@@ -641,6 +645,8 @@ public class MessageFactory {
 
 	public static final int ID_HomePosition = 909;
 
+	public static final int ID_ChargingState = 910;
+
 	public static final int ID_CurrentProfile = 1014;
 
 	public static final int ID_CurrentProfileCell = 1015;
@@ -657,9 +663,27 @@ public class MessageFactory {
 
 	public static final int ID_FluorescentDissolvedOrganicMatter = 2004;
 
+	public static final int ID_IridiumMsgTxExtended = 2005;
+
 	public static final int ID_TotalMagIntensity = 2006;
 
+	public static final int ID_ValidatePlan = 2007;
+
+	public static final int ID_TypedEntityParameter = 2008;
+
+	public static final int ID_TypedEntityParameters = 2009;
+
 	public static final int ID_CommRestriction = 2010;
+
+	public static final int ID_WifiStats = 2011;
+
+	public static final int ID_WifiNetwork = 2012;
+
+	public static final int ID_SonarPulse = 2013;
+
+	public static final int ID_HealthCheck = 2015;
+
+	public static final int ID_DirSonarData = 2019;
 
 	public static Message create(int mgid) {
 		switch(mgid) {
@@ -863,9 +887,6 @@ public class MessageFactory {
 			}
 			case ID_AcousticStatus: {
 				return new AcousticStatus();
-			}
-			case ID_AcousticRelease: {
-				return new AcousticRelease();
 			}
 			case ID_Rpm: {
 				return new Rpm();
@@ -1293,11 +1314,14 @@ public class MessageFactory {
 			case ID_Alignment: {
 				return new Alignment();
 			}
-			case ID_StationKeepingExtended: {
-				return new StationKeepingExtended();
+			case ID_FollowCommand: {
+				return new FollowCommand();
 			}
-			case ID_ManeuverDone: {
-				return new ManeuverDone();
+			case ID_Command: {
+				return new Command();
+			}
+			case ID_FollowCommandState: {
+				return new FollowCommandState();
 			}
 			case ID_Magnetometer: {
 				return new Magnetometer();
@@ -1467,6 +1491,12 @@ public class MessageFactory {
 			case ID_ImageTxSettings: {
 				return new ImageTxSettings();
 			}
+			case ID_ManeuverDone: {
+				return new ManeuverDone();
+			}
+			case ID_StationKeepingExtended: {
+				return new StationKeepingExtended();
+			}
 			case ID_RemoteState: {
 				return new RemoteState();
 			}
@@ -1620,6 +1650,9 @@ public class MessageFactory {
 			case ID_HomePosition: {
 				return new HomePosition();
 			}
+			case ID_ChargingState: {
+				return new ChargingState();
+			}
 			case ID_CurrentProfile: {
 				return new CurrentProfile();
 			}
@@ -1644,11 +1677,38 @@ public class MessageFactory {
 			case ID_FluorescentDissolvedOrganicMatter: {
 				return new FluorescentDissolvedOrganicMatter();
 			}
+			case ID_IridiumMsgTxExtended: {
+				return new IridiumMsgTxExtended();
+			}
 			case ID_TotalMagIntensity: {
 				return new TotalMagIntensity();
 			}
+			case ID_ValidatePlan: {
+				return new ValidatePlan();
+			}
+			case ID_TypedEntityParameter: {
+				return new TypedEntityParameter();
+			}
+			case ID_TypedEntityParameters: {
+				return new TypedEntityParameters();
+			}
 			case ID_CommRestriction: {
 				return new CommRestriction();
+			}
+			case ID_WifiStats: {
+				return new WifiStats();
+			}
+			case ID_WifiNetwork: {
+				return new WifiNetwork();
+			}
+			case ID_SonarPulse: {
+				return new SonarPulse();
+			}
+			case ID_HealthCheck: {
+				return new HealthCheck();
+			}
+			case ID_DirSonarData: {
+				return new DirSonarData();
 			}
 			default: {
 				return null;
@@ -1862,9 +1922,6 @@ public class MessageFactory {
 			}
 			case "AcousticStatus": {
 				return ID_AcousticStatus;
-			}
-			case "AcousticRelease": {
-				return ID_AcousticRelease;
 			}
 			case "Rpm": {
 				return ID_Rpm;
@@ -2292,11 +2349,14 @@ public class MessageFactory {
 			case "Alignment": {
 				return ID_Alignment;
 			}
-			case "StationKeepingExtended": {
-				return ID_StationKeepingExtended;
+			case "FollowCommand": {
+				return ID_FollowCommand;
 			}
-			case "ManeuverDone": {
-				return ID_ManeuverDone;
+			case "Command": {
+				return ID_Command;
+			}
+			case "FollowCommandState": {
+				return ID_FollowCommandState;
 			}
 			case "Magnetometer": {
 				return ID_Magnetometer;
@@ -2466,6 +2526,12 @@ public class MessageFactory {
 			case "ImageTxSettings": {
 				return ID_ImageTxSettings;
 			}
+			case "ManeuverDone": {
+				return ID_ManeuverDone;
+			}
+			case "StationKeepingExtended": {
+				return ID_StationKeepingExtended;
+			}
 			case "RemoteState": {
 				return ID_RemoteState;
 			}
@@ -2619,6 +2685,9 @@ public class MessageFactory {
 			case "HomePosition": {
 				return ID_HomePosition;
 			}
+			case "ChargingState": {
+				return ID_ChargingState;
+			}
 			case "CurrentProfile": {
 				return ID_CurrentProfile;
 			}
@@ -2643,11 +2712,38 @@ public class MessageFactory {
 			case "FluorescentDissolvedOrganicMatter": {
 				return ID_FluorescentDissolvedOrganicMatter;
 			}
+			case "IridiumMsgTxExtended": {
+				return ID_IridiumMsgTxExtended;
+			}
 			case "TotalMagIntensity": {
 				return ID_TotalMagIntensity;
 			}
+			case "ValidatePlan": {
+				return ID_ValidatePlan;
+			}
+			case "TypedEntityParameter": {
+				return ID_TypedEntityParameter;
+			}
+			case "TypedEntityParameters": {
+				return ID_TypedEntityParameters;
+			}
 			case "CommRestriction": {
 				return ID_CommRestriction;
+			}
+			case "WifiStats": {
+				return ID_WifiStats;
+			}
+			case "WifiNetwork": {
+				return ID_WifiNetwork;
+			}
+			case "SonarPulse": {
+				return ID_SonarPulse;
+			}
+			case "HealthCheck": {
+				return ID_HealthCheck;
+			}
+			case "DirSonarData": {
+				return ID_DirSonarData;
 			}
 			default: {
 				return -1;

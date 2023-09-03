@@ -12,39 +12,42 @@ import pt.lsts.imc4j.annotations.IMCField;
 import pt.lsts.imc4j.util.SerializationUtils;
 
 /**
- * Request a system (local or remote) to activate its acoustic release.
+ * Use to validate plans
  */
-public class AcousticRelease extends Message {
-	public static final int ID_STATIC = 217;
+public class ValidatePlan extends Message {
+	public static final int ID_STATIC = 2007;
 
 	/**
-	 * The name of the system that should execute an acoustic release.
+	 * Type of request.
 	 */
-	@FieldType(
-			type = IMCField.TYPE_PLAINTEXT
-	)
-	public String system = "";
-
 	@FieldType(
 			type = IMCField.TYPE_UINT8,
 			units = "Enumerated"
 	)
-	public OP op = OP.values()[0];
+	public TYPE type = TYPE.values()[0];
+
+	/**
+	 * An inline plan specification to be used both in requests and replies.
+	 */
+	@FieldType(
+			type = IMCField.TYPE_MESSAGE
+	)
+	public PlanDB plan = null;
 
 	public String abbrev() {
-		return "AcousticRelease";
+		return "ValidatePlan";
 	}
 
 	public int mgid() {
-		return 217;
+		return 2007;
 	}
 
 	public byte[] serializeFields() {
 		try {
 			ByteArrayOutputStream _data = new ByteArrayOutputStream();
 			DataOutputStream _out = new DataOutputStream(_data);
-			SerializationUtils.serializePlaintext(_out, system);
-			_out.writeByte((int)(op != null? op.value() : 0));
+			_out.writeByte((int)(type != null? type.value() : 0));
+			SerializationUtils.serializeInlineMsg(_out, plan);
 			return _data.toByteArray();
 		}
 		catch (IOException e) {
@@ -55,22 +58,24 @@ public class AcousticRelease extends Message {
 
 	public void deserializeFields(ByteBuffer buf) throws IOException {
 		try {
-			system = SerializationUtils.deserializePlaintext(buf);
-			op = OP.valueOf(buf.get() & 0xFF);
+			type = TYPE.valueOf(buf.get() & 0xFF);
+			plan = SerializationUtils.deserializeInlineMsg(buf);
 		}
 		catch (Exception e) {
 			throw new IOException(e);
 		}
 	}
 
-	public enum OP {
-		AROP_OPEN(0l),
+	public enum TYPE {
+		VPS_REQ(0l),
 
-		AROP_CLOSE(1l);
+		VPS_VALID(1l),
+
+		VPS_INVALID(2l);
 
 		protected long value;
 
-		OP(long value) {
+		TYPE(long value) {
 			this.value = value;
 		}
 
@@ -78,13 +83,13 @@ public class AcousticRelease extends Message {
 			return value;
 		}
 
-		public static OP valueOf(long value) throws IllegalArgumentException {
-			for (OP v : OP.values()) {
+		public static TYPE valueOf(long value) throws IllegalArgumentException {
+			for (TYPE v : TYPE.values()) {
 				if (v.value == value) {
 					return v;
 				}
 			}
-			throw new IllegalArgumentException("Invalid value for OP: "+value);
+			throw new IllegalArgumentException("Invalid value for TYPE: "+value);
 		}
 	}
 }

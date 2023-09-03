@@ -23,7 +23,7 @@ import pt.lsts.imc4j.util.TupleList;
  * to communicate.
  */
 public class StationKeepingExtended extends Maneuver {
-	public static final int ID_STATIC = 496;
+	public static final int ID_STATIC = 720;
 
 	/**
 	 * WGS-84 Latitude.
@@ -145,7 +145,7 @@ public class StationKeepingExtended extends Maneuver {
 	}
 
 	public int mgid() {
-		return 496;
+		return 720;
 	}
 
 	public byte[] serializeFields() {

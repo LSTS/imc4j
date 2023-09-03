@@ -9,14 +9,14 @@ import java.nio.ByteBuffer;
  * Notification of completion of a maneuver (optional use).
  */
 public class ManeuverDone extends Message {
-	public static final int ID_STATIC = 497;
+	public static final int ID_STATIC = 719;
 
 	public String abbrev() {
 		return "ManeuverDone";
 	}
 
 	public int mgid() {
-		return 497;
+		return 719;
 	}
 
 	public byte[] serializeFields() {

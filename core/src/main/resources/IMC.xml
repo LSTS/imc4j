@@ -10,7 +10,7 @@
           xsi:noNamespaceSchemaLocation="IMC.xsd"
           name="IMC"
           long-name="Inter Module Communication"
-          version="5.4.30">
+          version="5.5.0">
 
   <description>
     This document describes the communications protocol associated
@@ -382,7 +382,7 @@
       supplemental fields, it is always placed at the beginning of a
       packet.
     </description>
-    <field name="Synchronization Number" abbrev="sync" type="uint16_t" value="0xFE54" fixed="true">
+    <field name="Synchronization Number" abbrev="sync" type="uint16_t" value="0xFE55" fixed="true">
       <description>
         The synchronization number marks the beginning of a packet.
 
@@ -2396,21 +2396,6 @@
     </field>
   </message>
 
-  <message id="217" name="Acoustic Release Request" abbrev="AcousticRelease" category="Acoustic Communication">
-    <description>
-      Request a system (local or remote) to activate its acoustic release.
-    </description>
-    <field name="System" abbrev="system" type="plaintext">
-      <description>
-        The name of the system that should execute an acoustic release.
-        </description>
-    </field>
-    <field name="Operation" abbrev="op" type="uint8_t" unit="Enumerated" prefix="AROP">
-      <value id="0" name="Open" abbrev="OPEN"/>
-      <value id="1" name="Close" abbrev="CLOSE"/>
-    </field>
-  </message>
-
   <!-- Sensors -->
   <message id="250" name="Revolutions Per Minute" abbrev="Rpm" source="vehicle" category="Sensors">
     <description>
@@ -3076,9 +3061,9 @@
       +--------+------------------+-----+
       | Section| Flag Label       | Bit |
       +========+==================+=====+
-      | H3.1   | Intensities flag | 0   |
+      | H4.1   | Intensities flag | 0   |
       +--------+------------------+-----+
-      | H3.2   | Angle step flag  | 1   |
+      | H4.2   | Angle step flag  | 1   |
       +--------+------------------+-----+
 
       .. figure:: ../images/imc_multibeam.png
@@ -3091,8 +3076,8 @@
 
          angle[i] = H2_start_angle + (32-bit sum of D1_angle_step[0] through D1_angle_step[i]) * H4_scaling_factor
 
-      * If bit H3.1 is not set then sections H5 and D3 won't exist.
-      * If bit H3.2 is not set then sections H4 and D1 won't exist. In case this bit is set, then the angle steps is read from field "Beam Width" from "Beam Configuration".
+      * If bit H4.1 is not set then sections H5 and D3 won't exist.
+      * If bit H4.2 is not set then sections H4 and D1 won't exist. In case this bit is set, then the angle steps is read from field "Beam Width" from "Beam Configuration".
       * The type *uintX_t* will depend on the number of bits per unit, and it should be a multiple of 8.
       * Furthermore, for now, 32 bits is the highest value of bits per unit supported.
 
@@ -3119,6 +3104,7 @@
       <value id="0" name="Sidescan" abbrev="SIDESCAN"/>
       <value id="1" name="Echo Sounder" abbrev="ECHOSOUNDER"/>
       <value id="2" name="Multibeam" abbrev="MULTIBEAM"/>
+      <value id="3" name="Pencil Beam" abbrev="PENCILBEAM"/>
     </field>
     <field name="Frequency" abbrev="frequency" type="uint32_t" unit="Hz">
       <description>
@@ -3299,7 +3285,7 @@
 
   <message id="282" name="Device State" abbrev="DeviceState" source="vehicle" category="Sensors">
     <description>
-      Location of a specific device in the system infrastructure.
+      Location of a specific device in the system's body frame.
     </description>
     <field name="Device Position - X" abbrev="x" type="fp32_t" unit="m">
       <description>
@@ -7422,7 +7408,7 @@
     </field>
   </message>
 
-   <message id="489" name="Sample Maneuver" abbrev="Sample" source="ccu" category="Maneuvering">
+  <message id="489" name="Sample Maneuver" abbrev="Sample" source="ccu" category="Maneuvering">
     <description>
       A "Sample" is a maneuver specifying a movement of the vehicle to a
       target waypoint. The waypoint is described by the WGS-84
@@ -7756,84 +7742,139 @@
     </field>
   </message>
 
-<message id="496" name="Station Keeping Extended" abbrev="StationKeepingExtended" source="ccu" category="Maneuvering">
+  <message id="496" name="Follow Command Maneuver" abbrev="FollowCommand" source="ccu" category="Maneuvering">
     <description>
-      The Station Keeping Extended maneuver makes the vehicle come to the surface
-      and then enter a given circular perimeter around a waypoint coordinate
-      for a certain amount of time. It extends the Station Keeping maneuver with the feature
-      'Keep Safe', which allows for the vehicle to hold position underwater and popup periodically
-      to communicate.
+      This maneuver follows a direct command given by an external entity.
     </description>
-    <field name="Latitude WGS-84" abbrev="lat" type="fp64_t" unit="rad" min="-1.5707963267948966" max="1.5707963267948966">
+    <field name="Controlling Source" abbrev="control_src" type="uint16_t">
       <description>
-        WGS-84 Latitude.
+        The IMC identifier of the source system that is allowed to provide command to this maneuver.
+	If the value ''0xFFFF'' is used, any system is allowed to command references.
       </description>
     </field>
-    <field name="Longitude WGS-84" abbrev="lon" type="fp64_t" unit="rad" min="-3.141592653589793" max="3.141592653589793">
+    <field name="Controlling Entity" abbrev="control_ent" type="uint8_t">
       <description>
-        WGS-84 Longitude.
+        The entity identifier of the entity that is allowed to provide commands to this maneuver.
+        If the value ''0xFF'' is used, any entity is allowed to command references.
       </description>
     </field>
-    <field name="Z Reference" abbrev="z" type="fp32_t" unit="m">
+    <field name="Reference Update Timeout" abbrev="timeout" type="fp32_t">
       <description>
-        Maneuver reference in the z axis. Use z_units to specify
-        whether z represents depth, altitude or other.
-      </description>
-    </field>
-    <field name="Z Units" abbrev="z_units" type="uint8_t" value="0" unit="Enumerated" enum-def="ZUnits">
-      <description>
-        Units of the z reference.
-      </description>
-    </field>
-    <field name="Radius" abbrev="radius" type="fp32_t" unit="m">
-      <description>Radius.</description>
-    </field>
-    <field name="Duration" abbrev="duration" type="uint16_t" unit="s">
-      <description>Duration (0 for unlimited).</description>
-    </field>
-    <field name="Speed" abbrev="speed" type="fp32_t">
-      <description>
-        The value of the desired speed, in the scale specified
-        by the "Speed Units" field.
-      </description>
-    </field>
-    <field name="Speed Units" abbrev="speed_units" type="uint8_t" unit="Enumerated" enum-def="SpeedUnits">
-      <description>Indicates the units used for the speed value.</description>
-    </field>
-    <field name="PopUp Period" abbrev="popup_period" type="uint16_t" unit="s">
-      <description>
-        The period at which the vehicle will popup to report its position.
-        Only used if flag KEEP_SAFE is on.
-      </description>
-    </field>
-    <field name="PopUp Duration" abbrev="popup_duration" type="uint16_t" unit="s">
-      <description>
-        The duration of the station keeping at surface level when it pops up.
-        Only used if flag KEEP_SAFE is on.
-      </description>
-    </field>
-    <field name="Flags" abbrev="flags" prefix="FLG" type="uint8_t" unit="Bitfield">
-      <description>
-        Flags of the maneuver.
-      </description>
-      <value id="0x01" abbrev="KEEP_SAFE" name="Keep safe behaviour">
-        <description>
-          If this flag is set, the vehicle will hold position underwater, loitering at z reference.
-          It will popup periodically to report position. When it pops up, it will stay at surface in "normal" station keeping behaviour for a certain time (popup_duration).
-        </description>
-      </value>
-    </field>
-    <field name="Custom settings for maneuver" abbrev="custom" unit="TupleList" type="plaintext">
-      <description>
-        Custom settings for maneuver.
+        The ammount of time, in seconds, after which the maneuver will be terminated if no new command has
+        been received. In other words, the controlling entity should send command updates in shorter periods than
+        'timeout'.
       </description>
     </field>
   </message>
 
-  <message id="497" name="Maneuver Done" abbrev="ManeuverDone" source="ccu, vehicle" category="Maneuvering">
+  <message id="497" name="Command To Follow" abbrev="Command" source="ccu,vehicle" category="Maneuvering">
     <description>
-      Notification of completion of a maneuver (optional use).
+      This message must be sent by an external entity to provide command references to a system
+      running a "Follow Command Maneuver". If no Command messages are transmitted, the system
+      will terminate maneuver.
     </description>
+    <field name="Flags" abbrev="flags" type="uint8_t" unit="Bitfield" prefix="FLAG">
+      <value id="0x01" name="Use Speed Reference in meters per second" abbrev="SPEED_METERS_PS" >
+        <description>
+          Command system to move at speed reference provided in "speed" field in meters per second.
+        </description>
+      </value>
+      <value id="0x02" name="Use Speed Reference in revolutions per minute" abbrev="SPEED_RPM" >
+        <description>
+          Command system to move at speed reference provided in "speed" field in revolutions per minute.
+        </description>
+      </value>
+      <value id="0x04" name="Use Z Reference as depth" abbrev="DEPTH" >
+        <description>
+          Command system to move at z reference provided in "z" field in depth.
+        </description>
+      </value>
+      <value id="0x08" name="Use Z Reference as altitude" abbrev="ALTITUDE" >
+        <description>
+          Command system to move at z reference provided in "z" field in altitude.
+        </description>
+      </value>
+      <value id="0x10" name="Use Heading Reference" abbrev="HEADING" >
+        <description>
+          Command system to move at a heading reference provided in "heading" field in radians.
+        </description>
+      </value>
+      <value id="0x20" name="Use Heading Rate Reference" abbrev="HEADING_RATE" >
+        <description>
+          Command system to move at a heading rate reference provided in "heading" field in radians/s.
+        </description>
+      </value>
+      <value id="0x80" name="Flag Maneuver Completion" abbrev="MANDONE" >
+        <description>
+          Command system to exit maneuver's execution.
+        </description>
+      </value>
+    </field>
+    <field name="Speed Reference" abbrev="speed" type="fp32_t">
+      <description>
+        The value of the desired speed, in the scale specified by the
+        "flags" field.
+      </description>
+    </field>
+    <field name="Z Reference" abbrev="z" type="fp32_t" unit="m">
+      <description>
+        The value of the desired z reference in meters.
+      </description>
+    </field>
+    <field name="Heading Reference" abbrev="heading" type="fp32_t" unit="rad">
+      <description>
+        The value of the desired heading angle, relative to true  north, in radians,
+	or, the value of the desired heading rate angle, in radians.
+      </description>
+    </field>
+  </message>
+
+  <message id="498" name="Follow Command State" abbrev="FollowCommandState" source="vehicle" category="Maneuvering">
+    <field name="Controlling Source" abbrev="control_src" type="uint16_t">
+      <description>
+        The IMC identifier of the source system that is allowed to control the vehicle.
+        If the value ''0xFFFF'' is used, any system is allowed to command references.
+      </description>
+    </field>
+    <field name="Controlling Entity" abbrev="control_ent" type="uint8_t">
+      <description>
+        The entity identifier of the entity that is allowed to control the vehicle.
+        If the value ''0xFF'' is used, any entity is allowed to command references.
+      </description>
+    </field>
+    <field name="Command" abbrev="command" type="message" message-type="Command">
+      <description>Command currently being followed.</description>
+    </field>
+    <field name="State" abbrev="state" type="uint8_t" unit="Enumerated" prefix="FC">
+      <description>
+	Current state of execution.
+      </description>
+      <value id="1" name="Waiting for first command" abbrev="WAIT" >
+	<description>
+	  System is waiting for first command.
+	</description>
+      </value>
+      <value id="2" name="Moving towards received command" abbrev="MOVING" >
+	<description>
+	  System is moving according with command provided.
+	</description>
+      </value>
+      <value id="3" name="Speed command is zero" abbrev="STOPPED" >
+	<description>
+	  System is stopped. Speed reference is zero.
+	</description>
+      </value>
+      <value id="4" name="Command is out of safe bounds" abbrev="BAD_COMMAND">
+	<description>
+	  Command provided breaks system's physical limitations.
+	</description>
+      </value>
+      <value id="5" name="Controlling system timed out" abbrev="TIMEOUT" >
+	<description>
+	  Maneuver will be terminated since timeout was exceeded.
+	</description>
+      </value>
+    </field>
   </message>
 
   <message id="499" name="Magnetometer Maneuver" abbrev="Magnetometer" source="ccu" category="Maneuvering">
@@ -9768,6 +9809,87 @@
     <field name="Target Size" abbrev="tsize" type="uint8_t"/>
   </message>
 
+  <!-- Maneuvering 2 -->
+  <message id="719" name="Maneuver Done" abbrev="ManeuverDone" source="ccu, vehicle" category="Maneuvering">
+    <description>
+      Notification of completion of a maneuver (optional use).
+    </description>
+  </message>
+
+  <message id="720" name="Station Keeping Extended" abbrev="StationKeepingExtended" source="ccu" category="Maneuvering">
+    <description>
+      The Station Keeping Extended maneuver makes the vehicle come to the surface
+      and then enter a given circular perimeter around a waypoint coordinate
+      for a certain amount of time. It extends the Station Keeping maneuver with the feature
+      'Keep Safe', which allows for the vehicle to hold position underwater and popup periodically
+      to communicate.
+    </description>
+    <field name="Latitude WGS-84" abbrev="lat" type="fp64_t" unit="rad" min="-1.5707963267948966" max="1.5707963267948966">
+      <description>
+        WGS-84 Latitude.
+      </description>
+    </field>
+    <field name="Longitude WGS-84" abbrev="lon" type="fp64_t" unit="rad" min="-3.141592653589793" max="3.141592653589793">
+      <description>
+        WGS-84 Longitude.
+      </description>
+    </field>
+    <field name="Z Reference" abbrev="z" type="fp32_t" unit="m">
+      <description>
+        Maneuver reference in the z axis. Use z_units to specify
+        whether z represents depth, altitude or other.
+      </description>
+    </field>
+    <field name="Z Units" abbrev="z_units" type="uint8_t" value="0" unit="Enumerated" enum-def="ZUnits">
+      <description>
+        Units of the z reference.
+      </description>
+    </field>
+    <field name="Radius" abbrev="radius" type="fp32_t" unit="m">
+      <description>Radius.</description>
+    </field>
+    <field name="Duration" abbrev="duration" type="uint16_t" unit="s">
+      <description>Duration (0 for unlimited).</description>
+    </field>
+    <field name="Speed" abbrev="speed" type="fp32_t">
+      <description>
+        The value of the desired speed, in the scale specified
+        by the "Speed Units" field.
+      </description>
+    </field>
+    <field name="Speed Units" abbrev="speed_units" type="uint8_t" unit="Enumerated" enum-def="SpeedUnits">
+      <description>Indicates the units used for the speed value.</description>
+    </field>
+    <field name="PopUp Period" abbrev="popup_period" type="uint16_t" unit="s">
+      <description>
+        The period at which the vehicle will popup to report its position.
+        Only used if flag KEEP_SAFE is on.
+      </description>
+    </field>
+    <field name="PopUp Duration" abbrev="popup_duration" type="uint16_t" unit="s">
+      <description>
+        The duration of the station keeping at surface level when it pops up.
+        Only used if flag KEEP_SAFE is on.
+      </description>
+    </field>
+    <field name="Flags" abbrev="flags" prefix="FLG" type="uint8_t" unit="Bitfield">
+      <description>
+        Flags of the maneuver.
+      </description>
+      <value id="0x01" abbrev="KEEP_SAFE" name="Keep safe behaviour">
+        <description>
+          If this flag is set, the vehicle will hold position underwater, loitering at z reference.
+          It will popup periodically to report position. When it pops up, it will stay at surface in "normal" station keeping behaviour for a certain time (popup_duration).
+        </description>
+      </value>
+    </field>
+    <field name="Custom settings for maneuver" abbrev="custom" unit="TupleList" type="plaintext">
+      <description>
+        Custom settings for maneuver.
+      </description>
+    </field>
+  </message>
+
   <!-- External -->
   <message id="750" name="Remote State" abbrev="RemoteState" source="vehicle" category="CCU">
     <description>State summary for a remote vehicle.</description>
@@ -10110,6 +10232,11 @@
       <value abbrev="DELIVERED" name="Message has been acknowledged by the destination" id="9">
         <description>
           Message has been acknowledged by the destination.
+        </description>
+      </value>
+      <value abbrev="NO_TRANSDUCER" name="No transducer" id="10">
+        <description>
+          Transducer not connected to the acoustic modem.
         </description>
       </value>
     </field>
@@ -11046,6 +11173,14 @@
     </field>
    </message>
   
+   <message id="910" name="Charging State" abbrev="ChargingState" source="Vehicle" category="Sensors">
+    <description>Reports if the vehicle is charging or not</description>
+    <field name="Is Charging" abbrev="is_charging" type="uint8_t" unit="Enumerated" prefix="CSTATE">
+      <value id="0" name="Not Charging" abbrev="NOT_CHARGING"></value>
+      <value id="1" name="Is Charging" abbrev="IS_CHARGING"></value>
+    </field>
+  </message>
+
   <message id="1014" name="Current Profile" abbrev="CurrentProfile" source="vehicle" flags="periodic" category="Sensors">
     <description>
       Contains a profile of water velocities measured relative to the vehicle
@@ -11181,9 +11316,135 @@
       </description>
     </field>
   </message>
+
+  <message id="2005" name="Transmit Iridium Message (Extended)" abbrev="IridiumMsgTxExtended" source="vehicle,ccu" category="Networking">
+    <field name="Request Identifier" abbrev="req_id" type="uint16_t">
+      <description>The request identifier used to receive transmission updates.</description>
+    </field>
+    <field name="Time to live" abbrev="ttl" type="uint16_t" unit="s">
+      <description>Time, in seconds, after which there will be no more atempts to transmit the message.</description>
+    </field>
+    <field name="Expiration Time" abbrev="expiration" type="uint32_t" unit="s">
+      <description>Time in seconds since the Unix Epoch after which the recipient shall discard the message.</description>
+    </field>
+    <field name="Destination Identifier" abbrev="destination" type="plaintext">
+      <description>The unique identifier of this message's destination (e.g. lauv-xtreme-2, manta-0).</description>
+    </field>
+    <field name="Data" abbrev="data" type="rawdata">
+      <description>
+        Message data.
+      </description>
+    </field>
+  </message>
+
   <message id="2006" name="Total Magnetic Field Intensity" abbrev="TotalMagIntensity" source="vehicle" category="Sensors">
     <field name="Value" abbrev="value" type="fp64_t">
       <description>Total Magnetic Field Intensity (TMI)</description>
+    </field>
+  </message>
+
+  <message id="2007" name="Validate Plan DB" abbrev="ValidatePlan" source="vehicle" category="Plan Supervision">
+    <description>
+      Use to validate plans
+    </description>
+    <field name="Request Type" abbrev="type" type="uint8_t" unit="Enumerated" prefix="VPS">
+      <description>
+        Type of request.
+      </description>
+      <value id="0" abbrev="REQ" name="Request"/>
+      <value id="1" abbrev="VALID" name="Reply -- Valid"/>
+      <value id="2" abbrev="INVALID" name="Reply -- Invalid"/>
+    </field>
+    <field name="Plan DB" abbrev="plan" type="message" message-type="PlanDB">
+      <description>
+        An inline plan specification to be used both in requests and replies.
+      </description>
+    </field>
+  </message>
+
+  <message id="2008" name="Typed Entity Parameter" abbrev="TypedEntityParameter" source="vehicle" category="CCU">
+    <description>
+      Entity parameter with all the data that defines an entity parameter.
+    </description>
+    <field name="Entity Name" abbrev="name" type="plaintext">
+      <description>
+        Name of the parameter.
+      </description>
+    </field>
+    <field name="Type" abbrev="type" type="uint8_t" unit="Enumerated" prefix="TYPE">
+      <value id="1" name="Boolean Domain" abbrev="BOOL" />
+      <value id="2" name="Integer Domain" abbrev="INT" />
+      <value id="3" name="Float Domain" abbrev="FLOAT" />
+      <value id="4" name="String Domain" abbrev="STRING" />
+      <value id="5" name="List of Booleans" abbrev="LIST_BOOL"/>
+      <value id="6" name="List of Integers" abbrev="LIST_INT"/>
+      <value id="7" name="List of Floats" abbrev="LIST_FLOAT"/>
+      <value id="8" name="List of Strings" abbrev="LIST_STRING"/>
+    </field>
+    <field name="Default Value" abbrev="default_value" type="plaintext">
+      <description>
+        Default value of the parameter.
+      </description>
+    </field>
+    <field name="Units" abbrev="units" type="plaintext">
+      <description>
+        The units of the field, if applicable
+      </description>
+    </field>
+    <field name="Description" abbrev="description" type="plaintext">
+      <description>
+        Description of the parameter
+      </description>
+    </field>
+    <field name="Min Value" abbrev="min_value" type="fp32_t">
+      <description>
+        Optional. Min value of the parameter
+      </description>
+    </field>
+    <field name="Max Value" abbrev="max_value" type="fp32_t">
+      <description>
+        Optional. Max value of the parameter
+      </description>
+    </field>
+    <field name="List Min Size" abbrev="list_min_size" type="uint32_t">
+      <description>
+        When the parameter is a list, list_min_size indicates the minimum size of the list
+      </description>
+    </field>
+    <field name="List Max Size" abbrev="list_max_size" type="uint32_t">
+      <description>
+        When the parameter is a list, list_max_size indicates the maximum size of the list
+      </description>
+    </field>
+    <field name="Visibility" abbrev="visibility" type="uint8_t" unit="Enumerated" prefix="VISIBILITY">
+      <value id="0" name="User" abbrev="USER" />
+      <value id="1" name="Developer" abbrev="DEVELOPER" />
+    </field>
+    <field name="Scope" abbrev="scope" type="uint8_t" unit="Enumerated" prefix="SCOPE">
+      <value id="0" name="Global" abbrev="GLOBAL" />
+      <value id="1" name="Idle" abbrev="IDLE" />
+      <value id="2" name="Plan" abbrev="PLAN" />
+      <value id="3" name="Maneuver" abbrev="MANEUVER" />
+    </field>
+  </message>
+
+  <message id="2009" name="Typed Entity Parameters" abbrev="TypedEntityParameters" source="vehicle" category="CCU">
+    <description>This message can be used to query/report the entities and respective parameters in the system</description>
+    <field name="Operation" abbrev="op" type="uint8_t" unit="Enumerated" prefix="OP">
+      <description>
+        Operation to perform.
+      </description>
+      <value id="0" name="Request" abbrev="REQUEST" />
+      <value id="1" name="Reply" abbrev="REPLY" />
+    </field>
+    <field name="Request identitier" abbrev="request_id" type="uint32_t">
+      <description>Echoes the request_id in the request</description>
+    </field>
+    <field name="Entity Name" abbrev="entity_name" type="plaintext">
+      <description>Entity Label of the task that's replying to the request</description>
+    </field>
+    <field name="Parameters" abbrev="parameters" type="message-list" message-type="TypedEntityParameter">
+      <description>Contains an optionally defined List of TypedEntityParameter as a response to a TypedEntityParamaters Request.</description>
     </field>
   </message>
 
@@ -11201,4 +11462,144 @@
     </field>
   </message>
 
+  <message id="2011" name="WiFi Statistics" abbrev="WifiStats" source="ccu,vehicle" category="Networking">
+    <description>This message is used to log wifi connection statistics, heavily influenced by the stats available in ubiquiti radios.</description>
+    <field name="MAC Address" abbrev="mac" type="plaintext">
+      <description>MAC address of the associated radio.</description>
+    </field>
+    <field name="IP Address" abbrev="ip" type="plaintext">
+      <description>Last IP address of the associated radio.</description>
+    </field>
+    <field name="Client Connection Quality" abbrev="ccq" type="uint8_t" unit="%">
+      <description>Client Connection Quality indicator</description>
+    </field>
+    <field name="Noise Floor" abbrev="noise_floor" type="int16_t" unit="dB">
+      <description>Noise Floor (measure of the signal created from the sum of all the noise sources
+         and unwanted signals within a measurement system, where noise is defined as any signal other
+         than the one being monitored).
+      </description>
+    </field>
+    <field name="Signal" abbrev="signal" type="int16_t" unit="dB">
+      <description>Measure of the signal of the associated radio.</description>
+    </field>
+    <field name="RSSI" abbrev="rssi" type="uint16_t">
+      <description>Received Signal Strength Indicator, in arbitraty units. The bigger the RSSI, the better
+        the connection quality.</description>
+    </field>
+    <field name="Reception Data Rate" abbrev="rx_rate" type="int16_t" unit="Mbps">
+      <description>Reception data rate for the associated radio, -1 if not available.</description>
+    </field>
+    <field name="Transmission Data Rate" abbrev="tx_rate" type="int16_t" unit="Mbps">
+      <description>Transmission data rate for the associated radio, -1 if not available.</description>
+    </field>
+    <field name="Transmission Latency" abbrev="tx_latency" type="int16_t" unit="s">
+      <description>Latency of transmission to the associated radio, -1 if not available.</description>
+    </field>
+    <field name="Transmission Power" abbrev="tx_power" type="int16_t" unit="s">
+      <description>Power of transmission to the associated radio, -1 if not available.</description>
+    </field>
+    <field name="Reception Counter" abbrev="rx_count" type="uint32_t" unit="byte">
+      <description>Amount of bytes already received from the associated radio.</description>
+    </field>
+    <field name="Transmission Counter" abbrev="tx_count" type="uint32_t" unit="byte">
+      <description>Amount of bytes already transmitted to the associated radio.</description>
+    </field>
+    <field name="Distance" abbrev="distance" type="int16_t" unit="m">
+      <description>Distance for the associated radio, -1 if not available.</description>
+    </field>
+  </message>
+
+  <message id="2012" name="WiFi Network" abbrev="WifiNetwork" source="ccu,vehicle" category="Networking">
+    <description>This message is used to log wifi networks in the surroundings.</description>
+    <field name="ESSID" abbrev="essid" type="plaintext">
+      <description>Extended Service Set Identifier of the network</description>
+    </field>
+    <field name="MAC Address" abbrev="mac" type="plaintext">
+      <description>MAC Address of the network.</description>
+    </field>
+    <field name="Signal Level" abbrev="signal" type="int16_t" unit="dB"/>
+    <field name="Noise Level" abbrev="noise" type="int16_t" unit="dB"/>
+    <field name="CCQ" abbrev="ccq" type="int8_t" unit="%"/>
+    <field name="Wifi Channel" abbrev="channel" type="uint8_t"/>
+    <field name="Wifi Frequency" abbrev="freq" type="fp32_t"/>
+    <field name="Security" abbrev="security" type="plaintext"/>
+  </message>
+
+  <message id="2013" name="Sonar Pulse" abbrev="SonarPulse" source="vehicle" category="Sensors">
+    <description>
+      Information regarding a sent/received Sonar pulse.
+    </description>
+    <field name="Frequency" abbrev="frequency" type="int32_t" unit="Hz">
+      <description>
+        Frequency of the sent/received sonar pulse.
+      </description>
+    </field>
+    <field name="Pulse Length" abbrev="pulse_length" type="int32_t" unit="ms">
+      <description>
+        Pulse Length of the sonar pulse.
+      </description>
+    </field>
+    <field name="Time Delay" abbrev="time_delay" type="int32_t" unit="ms">
+      <description>
+        Time Delay of the sonar pulse.
+      </description>
+    </field>
+    <field name="Simulated Speed" abbrev="simulated_speed" type="int32_t" unit="m/s">
+      <description>
+        Doppler shift added to the sonar pulse in retransmission
+      </description>
+    </field>
+  </message>
+  <message id="2015" name="HealthCheck" abbrev="HealthCheck" source="ccu" category="Sensors">
+    <description>Used to request/reply a health check of a system</description>
+    <field name="Operation" abbrev="op" type="uint8_t" unit="Enumerated" prefix="OP">
+      <description>
+        Operation to perform. OP.REQUEST should start the HealthCheck. 
+        Use OP.REPLY to report the progress. 
+        OP.QUERY asks if the task implements health checking.
+        Upon receiving OP.Query, reply with OP.REPLY and STATUS.IMP or STATUS.NOT_IMP.
+      </description>
+      <value abbrev="REQUEST" name="Request" id="0"/>
+      <value abbrev="REPLY" name="Reply" id="1"/>
+      <value abbrev="QUERY" name="Query" id="2"/>
+    </field>
+    <field name="Request identitier" abbrev="request_id" type="uint32_t">
+      <description>Echoes the request_id in the request</description>
+    </field>
+    <field name="Entity Name" abbrev="entity_name" type="plaintext">
+      <description>Entity Label of the task that's replying to the request</description>
+    </field>
+    <field name="Status" abbrev="status" type="uint16_t" unit="Enumerated" prefix="ST">
+      <description>Health status of the entity</description>
+      <value id="0" name="Finished OK" abbrev="FINISHED_OK"></value>
+      <value id="1" name="Finished with errors" abbrev="FINISHED_ERROR"></value>
+      <value id="2" name="In Progress" abbrev="IN_PROGRESS"></value>
+      <value id="3" name="Implemented" abbrev="IMP"></value>
+      <value id="4" name="Not implemented" abbrev="NOT_IMP"></value>
+      <value id="5" name="Abort" abbrev="ABORT"></value>
+      <value id="6" name="Failed to establish connection" abbrev="CONN_ERROR"></value>
+      <value id="7" name="Failure sending data" abbrev="SEND_ERROR"></value>
+      <value id="8" name="Failure reading data" abbrev="READ_ERROR"></value>
+      <value id="9" name="Device error" abbrev="DEV_ERROR"></value>
+      <value id="10" name="Disconnect Error" abbrev="DISC_ERROR"></value>
+    </field>
+    <field name="Text" abbrev="text" type="plaintext">
+      <description>Textual description of the health status</description>
+    </field>
+  </message>
+  <message id="2019" name="Directional Sonar Data" abbrev="DirSonarData" source="vehicle" flags="periodic" category="Sensors">
+    <description>
+      This message contains the data acquired by a single sonar measurement whose angle can be controlled.
+    </description>
+    <field name="Relative Pose" abbrev="pose" type="message" message-type="DeviceState">
+      <description>
+        Pose of this sonar measurement, in relation to the body frame.
+      </description>
+    </field>
+    <field name="Measurement" abbrev="measurement" type="message" message-type="SonarData">
+      <description>
+        Data acquired by the measurement.
+      </description>
+    </field>
+  </message>
 </messages>

@@ -11,7 +11,7 @@ import pt.lsts.imc4j.util.FormatConversion;
 import pt.lsts.imc4j.util.SerializationUtils;
 
 public abstract class Message extends AbstractMessage {
-	public static final short SYNC_WORD = (short)0xFE54;
+	public static final short SYNC_WORD = (short)0xFE55;
 
 	/**
 	 * The synchronization number marks the beginning of a packet.
@@ -27,7 +27,7 @@ public abstract class Message extends AbstractMessage {
 	@FieldType(
 			type = IMCField.TYPE_UINT16
 	)
-	public final int sync = 0xFE54;
+	public final int sync = 0xFE55;
 
 	/**
 	 * The time when the packet was sent, as seen by the packet

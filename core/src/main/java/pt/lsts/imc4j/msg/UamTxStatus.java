@@ -97,7 +97,9 @@ public class UamTxStatus extends Message {
 
 		UTS_SENT(8l),
 
-		UTS_DELIVERED(9l);
+		UTS_DELIVERED(9l),
+
+		UTS_NO_TRANSDUCER(10l);
 
 		protected long value;
 

@@ -10,7 +10,7 @@ import pt.lsts.imc4j.annotations.FieldType;
 import pt.lsts.imc4j.annotations.IMCField;
 
 /**
- * Location of a specific device in the system infrastructure.
+ * Location of a specific device in the system's body frame.
  */
 public class DeviceState extends Message {
 	public static final int ID_STATIC = 282;
