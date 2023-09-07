@@ -455,7 +455,7 @@ public abstract class BackSeatDriver extends TcpClient {
 			for (int i = 0; i < paramValue.length; i++) {
 				params[i + 2] = paramValue[i];
 			}
-			setParam(entity, paramValue);
+			setParam(entity, params);
 		}
 	}
 
