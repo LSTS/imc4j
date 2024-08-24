@@ -1,41 +1,41 @@
-@import url('https://fonts.googleapis.com/css?family=Titillium+Web&display=swap');
-@import url('https://fonts.googleapis.com/css?family=Noto+Sans&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600&family=Noto+Sans:wght@400;700&display=swap');
 
 body {
-  background-color: #31475e;
-  font-family: 'Noto Sans', Tahoma,Arial,Helvetica,sans-serif;
-  color: #FFFFFF;
-  margin-left: auto;
-  margin-right: auto;
+  background-color: #2C3E50;
+  font-family: 'Noto Sans', Tahoma, Arial, Helvetica, sans-serif;
+  color: #ECF0F1;
+  margin: 0 auto;
   text-align: center;
+  padding: 20px;
 }
 
 h1, h2, h3, h4, h5, h6 {
-	font-family: 'Titillium Web', "Trebuchet MS", "Trebuchet", "Nimbus Sans L", sans-serif;
-	color: #FFFFFF;
-	margin: 1em 0 .3em;
+  font-family: 'Titillium Web', "Trebuchet MS", "Trebuchet", "Nimbus Sans L", sans-serif;
+  color: #ECF0F1;
+  margin: 1em 0 0.3em;
 }
 
 p {
-	margin: 1em 0 .3em;
+  margin: 1em 0 0.3em;
 }
 
 #copytext {
-  font-size: small;
+  font-size: 0.875rem;
 }
 
 .changed {
-  color: #FFBF5A; /* FF8A14 */
+  color: #F39C12;
 }
 
 .changedOverBackground {
-  background-color: #FFBF5A;
-  color: white;
+  background-color: #F39C12;
+  color: #2C3E50;
 }
 
 input[type=checkbox]:checked {
-  accent-color: #31475e;
+  accent-color: #2C3E50;
 }
+
 input[type=checkbox] {
   cursor: pointer;
   width: 20px;
@@ -44,30 +44,37 @@ input[type=checkbox] {
 }
 
 input[type=button], input[type=submit], input[type=reset] {
-  /* border: none; */
   padding: 10px 32px;
-  text-decoration: none;
   margin: 4px 2px;
   cursor: pointer;
-  border-radius: 1em;
+  border-radius: 8px;
+  border: none;
+  background-color: #3498DB;
+  color: #ECF0F1;
+  transition: background-color 0.3s ease;
+}
+
+input[type=button]:hover, input[type=submit]:hover, input[type=reset]:hover {
+  background-color: #2980B9;
 }
 
 .buttonChanged {
-  background-color: #FFBF5A; /* Orange Complementary color of Dodger Blue */
-  color: white;
+  background-color: #F39C12;
+  color: #2C3E50;
 }
 
 iframe {
-  /*background-color: white;*/
-  background-color: #333333;
+  background-color: #34495E;
 }
 
 a {
-	color: #656565;
+  color: #95A5A6;
+  text-decoration: none;
+  transition: color 0.3s ease;
 }
 
 a:hover {
-  color: #43C6DB;
+  color: #1ABC9C;
 }
 
 .clear {
@@ -76,71 +83,69 @@ a:hover {
 
 #logo {
   margin: 0;
-  padding: 0 0px 0.5em;
+  padding: 0 0 0.5em;
   display: block;
-  top: 5px;
-  float: left;
   position: relative;
   left: 7px;
-  clear: none;
-  color: #43C6DB;
+  color: #1ABC9C;
 }
 
-form { 
-  /*border : solid gray 1px;*/
-  padding : 3px;
-  background-color: #333333;
-  color: white;
+form {
+  padding: 10px;
+  background-color: #34495E;
+  color: #ECF0F1;
+  border-radius: 8px;
 }
-form .settings {
-}
+
+form .settings {}
+
 form textarea {
   width: 95%;
-  background-color: #707070;
-  color: white;
+  background-color: #7F8C8D;
+  color: #ECF0F1;
+  border: none;
+  border-radius: 4px;
+  padding: 10px;
 }
+
 form iframe#logbook {
   width: 95%;
-  border: 0em;
-  background-color: #707070;
-  color: white;
+  border: none;
+  background-color: #7F8C8D;
+  color: #ECF0F1;
 }
 
 .led-green {
-  vertical-align: middle;
-  margin: 0 auto;
   width: 24px;
   height: 24px;
-  background-color: #ABFF00;
+  background-color: #2ECC71;
   border-radius: 50%;
-  box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #304701 0 -1px 9px, #89FF00 0 2px 12px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
+
 .led-yellow {
-  vertical-align: middle;
-  margin: 0 auto;
   width: 24px;
   height: 24px;
-  background-color: #FF0;
+  background-color: #F1C40F;
   border-radius: 50%;
-  box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #808002 0 -1px 9px, #FF0 0 2px 12px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
+
 .led-red {
-  vertical-align: middle;
-  margin: 0 auto;
   width: 24px;
   height: 24px;
-  background-color: #F00;
+  background-color: #E74C3C;
   border-radius: 50%;
-  box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #441313 0 -1px 9px, rgba(255, 0, 0, 0.5) 0 2px 12px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 header {
-  width: 285px;
-  justify-content: center;
-  align-items: center;
+  width: 100%;
+  max-width: 760px;
   margin: auto;
-  padding: 10px 0px 30px 0px;
-  border-radius: 22px 22px 0px 0px;
+  padding: 20px 0;
+  border-radius: 22px 22px 0 0;
+  background-color: #34495E;
 }
 
 header .container {
@@ -151,87 +156,30 @@ header .container {
 }
 
 main {
-  padding: 1em;
-  width: 285px;
+  padding: 20px;
+  max-width: 760px;
   margin: auto;
-  background-color: #333333;
-  border-radius: 2em;
+  background-color: #34495E;
+  border-radius: 16px;
 }
 
 footer {
-  width: 285px;
-  justify-content: center;
-  align-items: center;
+  max-width: 760px;
   margin: auto;
-  padding: 30px 0px 10px 0px;
-  border-radius: 0px 0px 22px 22px;
-  /* background-color: #333333; */
-  color: #ffffff;
+  padding: 20px 0;
+  border-radius: 0 0 22px 22px;
+  background-color: #34495E;
+  color: #ECF0F1;
 }
 
-@media(min-width: 320px) {
-  header,
-  footer,
-  main {
+@media (min-width: 320px) {
+  header, footer, main {
     width: 95%;
   }
 }
 
-@media(min-width: 400px) {
-  .led-green {
-    display: inline-block;
-  }
-  .led-yellow {
-    display: inline-block;
-  }
-  .led-red {
-    display: inline-block;
-  }
-}
-
-@media(min-width: 768px) {
-  header,
-  footer,
-  main {
+@media (min-width: 768px) {
+  header, footer, main {
     width: 760px;
   }
-  .led-green {
-    display: inline-block;
-  }
-  .led-yellow {
-    display: inline-block;
-  }
-  .led-red {
-    display: inline-block;
-  }
-}
-
-@media only screen and (device-width: 768px) and (orientation: landscape) {
-  /* rules for iPad in landscape orientation */
-}
-
-@media only screen and (min-device-width: 320px) and (max-device-width: 480px) {
-  /* iPhone, Android rules here */
-/*  body {
-    font-size: 200%;
-  }
-
-  input[type=submit] {
-    font-size: 150%;
-  }
-
-  input[type=button] {
-    font-size: 120%;
-  }
-
-  input[type=checkbox] {
-    transform: scale(3);
-    padding: 10px;
-  }
-
-  iframe {
-    background-color: white;
-    font-size: 200%;
-  }
-  */
 }
