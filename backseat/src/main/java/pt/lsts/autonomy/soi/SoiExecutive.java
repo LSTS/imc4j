@@ -158,6 +158,8 @@ public class SoiExecutive extends TimedFSM {
 		reply.dst = cmd.src;
 		reply.dst_ent = cmd.src_ent;
 
+		boolean doChangeState = true;
+
 		switch (cmd.command) {
 
 		case SOICMD_EXEC:
@@ -184,6 +186,7 @@ public class SoiExecutive extends TimedFSM {
 					txtMessages.add(err);
 					reply.type = SoiCommand.TYPE.SOITYPE_ERROR;
 					reply.plan = null;
+					reply.info = "Deadline would be reached before " + timeDiff + " seconds";
 					break;
 				}
 				
@@ -198,6 +201,10 @@ public class SoiExecutive extends TimedFSM {
 				}
 				
 				reply.plan = plan.asImc();
+
+				if (wpt_index != 0) {
+					reply.info = "Skipped to waypoint " + wpt_index;
+				}
 
 				print("Start executing this plan:");
 				print("" + plan);
@@ -259,12 +266,17 @@ public class SoiExecutive extends TimedFSM {
 		case SOICMD_RESUME:
 			print("CMD: Resume execution!");
 			resetDeadline();
+			reply.type = SoiCommand.TYPE.SOITYPE_SUCCESS;
 			if (paused) {
 				setPaused(false);
-				return;
+				doChangeState = false;
+				reply.info = "was paused; ";
+				//return; // removed this but added doChangeState=false to avoid changing state
 			}
+			reply.info += "new deadline in " + timeout + " minutes";
 			break;
 		default:
+			reply.info = "Unknown command";
 			break;
 		}
 		
@@ -281,8 +293,10 @@ public class SoiExecutive extends TimedFSM {
 			replies.addAll(splitSettings(reply, 320));
 		else
 			replies.add(reply);
-		
-		state = this::start_waiting;
+
+		if (doChangeState) {
+			state = this::start_waiting;
+		}
 	}
 	
 	private ArrayList<SoiCommand> splitSettings(SoiCommand cmd, int length) {
