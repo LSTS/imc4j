@@ -117,6 +117,20 @@ public class SoiExecutive extends TimedFSM {
 		state = this::idleAtSurface;
 	}
 
+	/// Override to not allow finish to happen
+	@Override
+	public void end() {
+		super.end();
+		finished = false;
+	}
+
+	/// Override to not allow finish to happen
+	@Override
+	public void startPlan(String id) {
+		super.startPlan(id);
+		finished = false;
+	}
+
 	/**
 	 * In case the last plan failed, report the resulting error
 	 * 
