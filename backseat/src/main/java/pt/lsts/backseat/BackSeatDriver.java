@@ -43,8 +43,10 @@ public abstract class BackSeatDriver extends TcpClient {
 
 	protected LinkedHashMap<Integer, Message> state = new LinkedHashMap<>();
 	protected long startCommandTime = 0;
-	protected boolean paused = true, finished = false;
-	protected String endPlan = null, plan_name = "back_seat";
+	protected boolean paused = true;
+	protected boolean  finished = false;
+	protected String endPlan = null;
+	protected String plan_name = "back_seat";
 	private Reference reference = new Reference();
 	private Reference referenceStart = new Reference();
 	private final double MAX_NEAR_DIST = 50;
