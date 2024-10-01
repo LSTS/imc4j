@@ -254,6 +254,9 @@ public class SoiExecutive extends TimedFSM {
 			print("CMD: Stop execution!");
 			setPaused(true);
 			reply.type = SoiCommand.TYPE.SOITYPE_SUCCESS;
+			if (plan != null && !plan.waypoints().isEmpty()) {
+				reply.info = "was executing " + wpt_index + " of " + plan.waypoints().size();
+			}
 			break;
 
 		case SOICMD_GET_PLAN:
@@ -261,6 +264,9 @@ public class SoiExecutive extends TimedFSM {
 			if (plan != null)
 				reply.plan = plan.asImc();
 			reply.type = SoiCommand.TYPE.SOITYPE_SUCCESS;
+			if (plan != null && !plan.waypoints().isEmpty()) {
+				reply.info = "is executing " + wpt_index + " of " + plan.waypoints().size();
+			}
 			break;
 
 		case SOICMD_RESUME:
@@ -271,7 +277,14 @@ public class SoiExecutive extends TimedFSM {
 				setPaused(false);
 				doChangeState = false;
 				reply.info = "was paused; ";
+				if (plan != null && !plan.waypoints().isEmpty()) {
+					reply.info += "going to " + wpt_index + " of " + plan.waypoints().size();
+				}
 				//return; // removed this but added doChangeState=false to avoid changing state
+			} else {
+				if (plan != null && !plan.waypoints().isEmpty()) {
+					reply.info = "is executing " + wpt_index + " of " + plan.waypoints().size();
+				}
 			}
 			reply.info += "new deadline in " + timeout + " minutes";
 			break;
