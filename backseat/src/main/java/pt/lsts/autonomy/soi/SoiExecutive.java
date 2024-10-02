@@ -117,18 +117,20 @@ public class SoiExecutive extends TimedFSM {
 		state = this::idleAtSurface;
 	}
 
-	/// Override to not allow finish to happen
+	/// Override to not allow finish to happen, but pause instead
 	@Override
 	public void end() {
 		super.end();
 		finished = false;
+		setPaused(true);
 	}
 
-	/// Override to not allow finish to happen
+	/// Override to not allow finish to happen, but pause instead
 	@Override
 	public void startPlan(String id) {
 		super.startPlan(id);
 		finished = false;
+		setPaused(true);
 	}
 
 	/**
