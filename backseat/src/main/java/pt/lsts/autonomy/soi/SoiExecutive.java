@@ -294,12 +294,12 @@ public class SoiExecutive extends TimedFSM {
 				doChangeState = false;
 				reply.info = "was paused; ";
 				if (plan != null && !plan.waypoints().isEmpty()) {
-					reply.info += "going to " + wpt_index + " of " + plan.waypoints().size();
+					reply.info += "going to " + wpt_index + " of " + plan.waypoints().size() + "; ";
 				}
 				//return; // removed this but added doChangeState=false to avoid changing state
 			} else {
 				if (plan != null && !plan.waypoints().isEmpty()) {
-					reply.info = "is executing " + wpt_index + " of " + plan.waypoints().size();
+					reply.info = "is executing " + wpt_index + " of " + plan.waypoints().size() + "; ";
 				}
 			}
 			reply.info += "new deadline in " + timeout + " minutes";
