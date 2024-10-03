@@ -45,6 +45,8 @@ import pt.lsts.imc4j.util.WGS84Utilities;
 
 public class SoiExecutive extends TimedFSM {
 
+	private static final double TWO_PI_RADS = Math.PI * 2.0;
+
 	@Parameter(description = "Nominal Speed")
 	public double speed = 1;
 
@@ -739,8 +741,7 @@ public class SoiExecutive extends TimedFSM {
 			sendViaIridium(createStateReport(), max_wait - count_secs - 1);
 			print("Will wait from " + min_wait + " to " + max_wait + " seconds to send " + txtMessages.size()
 					+ " texts, " + replies.size() + " command replies and " + profiles.size() + " profiles.");
-
-		} 
+		}
 		else {
 			while (!replies.isEmpty()) {
 				SoiCommand cmd = replies.get(0);
@@ -905,6 +906,14 @@ public class SoiExecutive extends TimedFSM {
 		print(txtDeadline);
 	}
 
+	private static double normalizeAngleRads2Pi(double angle) {
+		double ret = angle;
+		ret = ret % TWO_PI_RADS;
+		if (ret < 0.0)
+			ret += TWO_PI_RADS;
+		return ret;
+	}
+
 	/**
 	 * Generate state report to be sent over Iridium
 	 * 
@@ -919,16 +928,15 @@ public class SoiExecutive extends TimedFSM {
 		report.depth = estate == null || estate.depth == -1 ? 0xFFFF : (int) (estate.depth * 10);
 		report.altitude = estate == null || estate.alt == -1 ? 0xFFFF : (int) (estate.alt * 10);
 		report.speed = estate == null ? 0xFFFF : (int) (estate.u * 100);
-		report.fuel = flevel == null ? 255 : (int) (flevel.value * 254);
+		report.fuel = flevel == null ? -1 : (int) flevel.value;
 
 		if (estate != null) {
 			double[] loc = WGS84Utilities.toLatLonDepth(estate);
 			report.latitude = (float) loc[0];
 			report.longitude = (float) loc[1];
 			double rads = estate.psi;
-			while (rads < 0)
-				rads += (Math.PI * 2);
-			report.heading = (int) ((rads / (Math.PI * 2)) * 65535);
+			rads = normalizeAngleRads2Pi(rads);
+			report.heading = (int) ((rads / TWO_PI_RADS) * 65535);
 		}
 
 		report.exec_state = -2;
