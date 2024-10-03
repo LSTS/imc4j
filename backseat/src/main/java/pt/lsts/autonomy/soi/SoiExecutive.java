@@ -486,10 +486,11 @@ public class SoiExecutive extends TimedFSM {
 
 				if (plan.getETA().after(deadline)) {
 					int timeDiff = (int) ((plan.getETA().getTime() - deadline.getTime()) / 1000.0);
-					String err = "Deadline would be reached " + timeDiff + " seconds before the end of the plan";
+					String err = "Cycled. Deadline would be reached " + timeDiff + " seconds before the end of the plan";
 					printError(err);
 					plan = null;
 					txtMessages.add(err);
+					setAndInformEndOfPlan();
 					return this::idleAtSurface;
 				}
 
@@ -499,22 +500,12 @@ public class SoiExecutive extends TimedFSM {
 				reply.src = remoteSrc;
 				reply.dst = 0xFFFF;
 				reply.plan = plan.asImc();
+				reply.info = "Restart cycled plan.";
 				replies.add(reply);
 
 				return this::start_waiting;
 			} else {
-				String txtDeadline = "INFO: Finished plan execution.";
-				txtMessages.add(txtDeadline);
-				wpt_index = 0;
-				this.plan = null;
-
-				SoiCommand reply = new SoiCommand();
-				reply.command = COMMAND.SOICMD_GET_PLAN;
-				reply.type = SoiCommand.TYPE.SOITYPE_SUCCESS;
-				reply.src = remoteSrc;
-				reply.dst = 0xFFFF;
-				reply.plan = null;
-				replies.add(reply);
+				setAndInformEndOfPlan();
 				return this::idleAtSurface;
 			}
 		}
@@ -524,6 +515,22 @@ public class SoiExecutive extends TimedFSM {
 		setSpeed();
 
 		return this::align;
+	}
+
+	private void setAndInformEndOfPlan() {
+		String txtDeadline = "INFO: Finished plan execution. Waiting instructions.";
+		txtMessages.add(txtDeadline);
+		wpt_index = 0;
+		this.plan = null;
+
+		SoiCommand reply = new SoiCommand();
+		reply.command = COMMAND.SOICMD_GET_PLAN;
+		reply.type = SoiCommand.TYPE.SOITYPE_SUCCESS;
+		reply.src = remoteSrc;
+		reply.dst = 0xFFFF;
+		reply.plan = null;
+		reply.info = "Finished plan execution. Waiting instructions.";
+		replies.add(reply);
 	}
 
 	/**
