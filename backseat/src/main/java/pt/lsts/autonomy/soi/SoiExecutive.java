@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.lang.reflect.Field;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -158,6 +159,26 @@ public class SoiExecutive extends TimedFSM {
 
 		if (pControl.op == OP.PC_STOP && pControl.type == PlanControl.TYPE.PC_SUCCESS) {
 			state = this::start_waiting;
+		}
+	}
+
+	@Override
+	public void setPaused(boolean paused) {
+		boolean informPaused = !this.paused && paused;
+		super.setPaused(paused);
+		if (informPaused) {
+			String txt = "INFO: Paused execution. Waiting for instructions.";
+			txtMessages.add(txt);
+			sendViaSms(txt, (int) Duration.ofMinutes(5).toMinutes());
+			SoiCommand reply = new SoiCommand();
+			reply.command = COMMAND.SOICMD_STOP;
+			reply.type = SoiCommand.TYPE.SOITYPE_SUCCESS;
+			reply.src = remoteSrc;
+			reply.dst = 0xFFFF;
+			reply.plan = null;
+			reply.info = "Paused execution. Waiting for instructions.";
+			replies.add(reply);
+			sendViaIridium(reply, (int) Duration.ofMinutes(5).toMinutes());
 		}
 	}
 
