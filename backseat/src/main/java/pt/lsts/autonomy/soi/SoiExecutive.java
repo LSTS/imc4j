@@ -99,7 +99,9 @@ public class SoiExecutive extends TimedFSM {
 	public boolean split = false;	
 
 	private Plan plan = new Plan("idle");
-	private int secs_no_comms = 0, count_secs = 0, secs_underwater = 0;
+	private int secs_no_comms = 0;
+	private int count_secs = 0;
+	private int secs_underwater = 0;
 	private int wpt_index = 0;
 	private ArrayList<String> txtMessages = new ArrayList<>();
 	private ArrayList<SoiCommand> replies = new ArrayList<>();
