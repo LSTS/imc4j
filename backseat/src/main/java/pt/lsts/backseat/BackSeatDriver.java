@@ -1,7 +1,9 @@
 package pt.lsts.backseat;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -495,7 +497,9 @@ public abstract class BackSeatDriver extends TcpClient {
 		}
 	}
 
-	protected TransmissionRequest inlineMsgRequest(Message msg, TransmissionRequest.COMM_MEAN mean, int ttl) {
+	protected List<TransmissionRequest> inlineMsgRequest(Message msg, TransmissionRequest.COMM_MEAN mean, int ttl) {
+		ArrayList<TransmissionRequest> ret = new ArrayList<>();
+
 		TransmissionRequest request = new TransmissionRequest();
 		request.data_mode = DATA_MODE.DMODE_INLINEMSG;
 		request.msg_data = msg;
@@ -503,7 +507,9 @@ public abstract class BackSeatDriver extends TcpClient {
 		request.destination = "broadcast";
 		request.deadline = System.currentTimeMillis() / 1000.0 + ttl;
 		request.req_id = request_id.incrementAndGet();
-		return request;
+		ret.add(request);
+
+		return ret;
 	}
 
 	protected TransmissionRequest txtMessageRequest(String text, TransmissionRequest.COMM_MEAN mean, int ttl) {
@@ -518,11 +524,15 @@ public abstract class BackSeatDriver extends TcpClient {
 	}
 
 	protected void sendViaIridium(Message msg, int ttl) {
-		TransmissionRequest request = inlineMsgRequest(msg, TransmissionRequest.COMM_MEAN.CMEAN_SATELLITE, ttl);
+		List<TransmissionRequest> requestList = inlineMsgRequest(msg, TransmissionRequest.COMM_MEAN.CMEAN_SATELLITE, ttl);
 		try {
-			send(request);
-			iridiumTransmissions.put(request.req_id, request);
-			print("Request to send "+msg.abbrev()+" over Iridium: "+request.req_id);
+			StringBuilder rqstIdsString = new StringBuilder();
+			for (TransmissionRequest request : requestList) {
+				send(request);
+				iridiumTransmissions.put(request.req_id, request);
+				rqstIdsString.append(request.req_id).append(", ");
+			}
+			print("Request to send " + msg.abbrev() + " over Iridium: " + rqstIdsString.toString());
 		}
 		catch (Exception e) {
 			print("Could not transmit Iridium message: "+e.getMessage());
