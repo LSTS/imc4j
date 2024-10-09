@@ -39,6 +39,7 @@ import pt.lsts.imc4j.msg.TransmissionStatus.STATUS;
 import pt.lsts.imc4j.msg.VehicleMedium;
 import pt.lsts.imc4j.msg.VehicleMedium.MEDIUM;
 import pt.lsts.imc4j.net.TcpClient;
+import pt.lsts.imc4j.util.IridiumUtils;
 import pt.lsts.imc4j.util.WGS84Utilities;
 
 public abstract class BackSeatDriver extends TcpClient {
@@ -499,16 +500,17 @@ public abstract class BackSeatDriver extends TcpClient {
 
 	protected List<TransmissionRequest> inlineMsgRequest(Message msg, TransmissionRequest.COMM_MEAN mean, int ttl) {
 		ArrayList<TransmissionRequest> ret = new ArrayList<>();
-
-		TransmissionRequest request = new TransmissionRequest();
-		request.data_mode = DATA_MODE.DMODE_INLINEMSG;
-		request.msg_data = msg;
-		request.comm_mean = mean;
-		request.destination = "broadcast";
-		request.deadline = System.currentTimeMillis() / 1000.0 + ttl;
-		request.req_id = request_id.incrementAndGet();
-		ret.add(request);
-
+		List<Message> sliceParts = IridiumUtils.sliceMessage(msg);
+		for (Message part : sliceParts) {
+			TransmissionRequest request = new TransmissionRequest();
+			request.data_mode = DATA_MODE.DMODE_INLINEMSG;
+			request.msg_data = part;
+			request.comm_mean = mean;
+			request.destination = "broadcast";
+			request.deadline = System.currentTimeMillis() / 1000.0 + ttl;
+			request.req_id = request_id.incrementAndGet();
+			ret.add(request);
+		}
 		return ret;
 	}
 
