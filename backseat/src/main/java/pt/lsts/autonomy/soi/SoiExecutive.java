@@ -343,10 +343,18 @@ public class SoiExecutive extends TimedFSM {
 		}
 		
 		// If message is too large to send over Iridium, try to split its settings
-		if (reply.serialize().length > 320)
-			replies.addAll(splitSettings(reply, 320));
-		else
-			replies.add(reply);
+		switch (reply.command) {
+			case SOICMD_GET_PARAMS:
+			case SOICMD_SET_PARAMS:
+				if (reply.serialize().length > 320)
+					replies.addAll(splitSettings(reply, 320));
+				else
+					replies.add(reply);
+				break;
+			default:
+				replies.add(reply);
+				break;
+		}
 
 		if (doChangeState) {
 			state = this::start_waiting;
