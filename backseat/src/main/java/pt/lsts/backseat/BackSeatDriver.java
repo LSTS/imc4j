@@ -501,7 +501,11 @@ public abstract class BackSeatDriver extends TcpClient {
 	protected List<TransmissionRequest> inlineMsgRequest(Message msg, TransmissionRequest.COMM_MEAN mean, int ttl) {
 		ArrayList<TransmissionRequest> ret = new ArrayList<>();
 		List<Message> sliceParts = IridiumUtils.sliceMessage(msg);
+		int i = 0;
 		for (Message part : sliceParts) {
+			print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  $$$$$$     Sending part " +
+					+ i++ + " " + part.abbrev() + " with ttl " + ttl);
+
 			TransmissionRequest request = new TransmissionRequest();
 			request.data_mode = DATA_MODE.DMODE_INLINEMSG;
 			request.msg_data = part;
@@ -527,6 +531,10 @@ public abstract class BackSeatDriver extends TcpClient {
 
 	protected void sendViaIridium(Message msg, int ttl) {
 		List<TransmissionRequest> requestList = inlineMsgRequest(msg, TransmissionRequest.COMM_MEAN.CMEAN_SATELLITE, ttl);
+		if (requestList.size() > 1) {
+			print(">>>>>>>>>>>> Sending "+msg.abbrev()+" over Iridium: "+requestList.size()+" parts");
+		}
+
 		try {
 			StringBuilder rqstIdsString = new StringBuilder();
 			for (TransmissionRequest request : requestList) {
