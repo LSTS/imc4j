@@ -977,20 +977,20 @@ public class SoiExecutive extends TimedFSM {
 			report.heading = (int) ((rads / TWO_PI_RADS) * 65535);
 		}
 
-		report.exec_state = -2;
+		report.exec_state = -20;
 		if (pcs != null) {
 			switch (pcs.state) {
 			case PCS_EXECUTING:
 				report.exec_state = (int) pcs.plan_progress;
 				break;
 			case PCS_READY:
-				report.exec_state = -1;
+				report.exec_state = -10;
 				break;
 			case PCS_INITIALIZING:
-				report.exec_state = -3;
+				report.exec_state = -30;
 				break;
 			case PCS_BLOCKED:
-				report.exec_state = -4;
+				report.exec_state = -40;
 				break;
 			default:
 				break;
