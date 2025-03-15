@@ -25,31 +25,23 @@ function changeDetect() {
     var settings = document.getElementById("settings");
     if (settings.value != settings.defaultValue) {
         someChange = true;
-        if (!settings.className.includes(" changed"))
-            settings.className += " changed";
+        settings.classList.toggle("changed", true);
     }
     else {
-        settings.className = settings.className.replace(" changed", "");
+        settings.classList.toggle("changed", false);
     }
 
     var autoStart = document.getElementById("autoStart");
     if (autoStart.checked != autoStart.defaultChecked) {
         someChange = true;
-        if (!autoStart.parentNode.className.includes(" changedOverBackground"))
-            autoStart.parentNode.className += " changedOverBackground";
+        autoStart.parentNode.classList.toggle("changedOverBackground", true);
     }
     else {
-        autoStart.parentNode.className = autoStart.parentNode.className.replace(" changedOverBackground", "");
+        autoStart.parentNode.classList.toggle("changedOverBackground", false);
     }
 
     var save = document.getElementById("save");
-    if (someChange) {
-        if (!save.className.includes(" buttonChanged"))
-            save.className += " buttonChanged";
-    }
-    else {
-        save.className = save.className.replace(" buttonChanged", "");
-    }
+    save.classList.toggle("buttonChanged", someChange);
 }
 
 function scrollToEnd() { 
@@ -71,7 +63,9 @@ function updateStartStopState(state) {
     var isTheSame = startStop.value === newValue;
     startStop.value = newValue;
 
-    startStopLed.className = isStarted ? "led-green" : "led-red";
+    startStopLed.classList.toggle("led-yellow", false);
+    startStopLed.classList.toggle("led-green", isStarted);
+    startStopLed.classList.toggle("led-red", !isStarted);
 
     // console.log(" '" + startStop.value + " '" + newValue + "'  " + isTheSame);
     if (!isTheSame) {

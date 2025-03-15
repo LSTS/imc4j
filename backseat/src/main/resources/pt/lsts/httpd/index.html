@@ -21,38 +21,39 @@
 <body>
 
 <!-- Header -->
-<header>
+<header class="top-header">
 	<div class="container">
 		<h1>((-NAME-))</h1>
 	</div>
 </header>
 
 <!-- Main Area -->
-<main id="main">
+<main id="main" class="top-main">
 	<form action='/' method='post'>
-		<div>
-			<div id='startStopLed' class="led-yellow"></div>&nbsp;
+		<div class="start-stop">
+			<div id='startStopLed' class="led led-yellow"></div>
 			<input type='submit' id='startStop' name='cmd' value='((-START-STOP-))' />
-			<label for="autoStart"><input type="checkbox" id="autoStart" name="autoStart"
-				((-CHECKED-)) value="checked"/> Auto Start on Power On &nbsp;</label>
+			<label class="auto-start" for="autoStart"><input type="checkbox" id="autoStart" name="autoStart"
+				((-CHECKED-)) value="checked"/> Auto Start on Power On</label>
 		</div>
 
-		<h2><label for="settings">Settings:</label>
-			&nbsp; <input type='submit' name='cmd' id='save' value='Save' />
-		</h2>
+		<div class="start-stop margin-h2">
+			<h2><label for="settings">Settings:</label></h2>
+			<input type='submit' name='cmd' id='save' value='Save' />
+		</div>
 		<textarea class='settings' id='settings' name='settings' cols='100' rows='20'>((-SETTINGS-))</textarea>
 
-		<h2><label for="logbook">Log Book</label>:
-			&nbsp; <input id='reloadLogbook' name='reloadLogbook' type="button" onclick="reloadLogbookFrame()" value="Reload" /><br/>
-		</h2>
+		<div class="start-stop margin-h2">
+			<h2><label for="logbook">Log Book:</label></h2>
+			<input id='reloadLogbook' name='reloadLogbook' type="button" onclick="reloadLogbookFrame()" value="Reload" />
+		</div>
 		<iframe onload='scrollToEnd();' name='logbook' id='logbook' title='log book' src='/logbook' height='400px'></iframe>
 	</form>
-	<div>&nbsp;</div>			
 </main>
 
 <!-- Footer -->
 <footer class="last-footer">
-	<div id='copyText'>&copy; ((-COPY-YEARS-)) - LSTS</div>
+	<div class='copytext'>&copy; ((-COPY-YEARS-)) - LSTS</div>
 </footer>
 
 </body>
