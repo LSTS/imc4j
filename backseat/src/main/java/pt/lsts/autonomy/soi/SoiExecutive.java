@@ -43,6 +43,7 @@ import pt.lsts.imc4j.msg.VerticalProfile.PARAMETER;
 import pt.lsts.imc4j.util.PojoConfig;
 import pt.lsts.imc4j.util.TupleList;
 import pt.lsts.imc4j.util.WGS84Utilities;
+import pt.lsts.autonomy.util.DistanceUtil;
 
 public class SoiExecutive extends TimedFSM {
 
@@ -131,6 +132,7 @@ public class SoiExecutive extends TimedFSM {
 	}
 
 	/// Override to not allow finish to happen, but pause instead
+	@Override
 	@Override
 	public void startPlan(String id) {
 		super.startPlan(id);
@@ -585,6 +587,8 @@ public class SoiExecutive extends TimedFSM {
 			return this::start_waiting;
 		}
 		try {
+
+            /*
 			double[] cur_pos = WGS84Utilities.toLatLonDepth(get(EstimatedState.class));
 			double[] target_pos = new double[] { plan.waypoint(wpt_index).getLatitude(),
 					plan.waypoint(wpt_index).getLongitude() };
@@ -595,8 +599,14 @@ public class SoiExecutive extends TimedFSM {
 			if (dist < min_dist) {
 				print("!!!!!!!!!! Starting to ascend, getting close to destination.  " + Math.round(dist) + " < "
 						+ Math.round(min_dist) + " (cur depth " + Math.round(cur_pos[2]) + ")");
-				return this::ascend;
-			}
+
+             */
+
+            if (DistanceUtil.limitReached(this, get(EstimatedState.class), plan.waypoint(wpt_index).getLatitude(),
+                    plan.waypoint(wpt_index).getLongitude(), false)) {
+                return this::ascend;
+            }
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -616,8 +626,10 @@ public class SoiExecutive extends TimedFSM {
 	public FSMState ascend(FollowRefState ref) {
 		printFSMState();
 		double target_depth = minDepth;
-		if (minsUnder > 0 && (secs_underwater / 60) >= minsUnder)
-			target_depth = 0;
+		if (minsUnder > 0 && (secs_underwater / 60) >= minsUnder ||
+                DistanceUtil.limitReached(this, get(EstimatedState.class), plan.waypoint(wpt_index).getLatitude(),
+                        plan.waypoint(wpt_index).getLongitude(), true))
+            target_depth = 0;
 
 		setDepth(target_depth);
 
