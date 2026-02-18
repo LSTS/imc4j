@@ -27,7 +27,13 @@ public class TimedFSM extends FSMController {
 		//print("FSM State: " + method + " (" + (timeMillis / 1000)+"s left, or " + (timeMillis / 60000) + "min left, or " + (timeMillis / 3600000d) + "h left)");
 		print(String.format("FSM State: %s (%ds left, or %dmin left, or %fh left)", method, timeMillis / 1000, timeMillis / 60000, timeMillis / 3600000d));
     }
-	
+
+	protected void printException(Exception e) {
+		printError("Exception: " + e.getMessage());
+		String trace = java.util.Arrays.toString(e.getStackTrace());
+		printError("Trace: " + trace);
+	}
+
 	public void setDeadline(Date date) {
 		this.deadline = date;
 	}
