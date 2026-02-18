@@ -908,10 +908,9 @@ public class SoiExecutive extends TimedFSM {
 		Waypoint wpt = plan.waypoint(wpt_index);
 		double speed = this.speed;
 
-		if (wpt == null)
+		if (wpt == null) {
 			speed = 0;
-
-		if (wpt.getArrivalTime() != null) {
+		} else if (wpt.getArrivalTime() != null) {
 			double[] pos = WGS84Utilities.toLatLonDepth(get(EstimatedState.class));
 			double dist = WGS84Utilities.distance(wpt.getLatitude(), wpt.getLongitude(), pos[0], pos[1]);
 			double secs = (wpt.getArrivalTime().getTime() - System.currentTimeMillis()) / 1000.0;
