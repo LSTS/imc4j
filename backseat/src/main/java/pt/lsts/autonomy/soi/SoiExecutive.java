@@ -642,56 +642,55 @@ public class SoiExecutive extends TimedFSM {
 			return this::start_waiting;
 		}
 
-		if (target_depth > 0 && arrivedZ() || !isUnderwater()) {
-			if (secs_no_comms / 60 >= minsOff) {
-				print("Periodic surface");
-				return this::start_waiting;
-			} else {
-				if (maxDepth != target_depth) {
-					print("Now descending (disconnected for " + secs_no_comms + " seconds).");
-					VerticalProfile salProf = null, tempProf = null;
+        if ((target_depth <= 0 || !arrivedZ()) && isUnderwater()) {
+            return this::ascend;
+        }
 
-					try {
-						salProf = salProfiler.getProfile(PARAMETER.PROF_SALINITY, Math.min((int) maxDepth, 20));
-						tempProf = tempProfiler.getProfile(PARAMETER.PROF_TEMPERATURE, Math.min((int) maxDepth, 20));
-					} catch (Exception e) {
-						print(e.getClass().getSimpleName() + " while calculating profile: " + e.getMessage());
-					}
+        if (secs_no_comms / 60 >= minsOff) {
+            print("Periodic surface");
+            return this::start_waiting;
+        }
 
-					if (tempProf != null) {
-						if (upTemp) {
-							profiles.add(tempProf);
-							print("Added temperature profile with " + tempProf.samples.size() + " samples");
-						}
+        if (maxDepth != target_depth) {
+            print("Now descending (disconnected for " + secs_no_comms + " seconds).");
+            VerticalProfile salProf = null, tempProf = null;
 
-						FSMState newState = onTemperatureProfile(tempProf);
-						if (newState != null)
-							return newState;
-					}
+            try {
+                salProf = salProfiler.getProfile(PARAMETER.PROF_SALINITY, Math.min((int) maxDepth, 20));
+                tempProf = tempProfiler.getProfile(PARAMETER.PROF_TEMPERATURE, Math.min((int) maxDepth, 20));
+            } catch (Exception e) {
+                print(e.getClass().getSimpleName() + " while calculating profile: " + e.getMessage());
+            }
 
-					if (salProf != null) {
-						if (upSal) {
-							profiles.add(salProf);
-							print("Added salinity profile with " + salProf.samples.size() + " samples");
-						}
+            if (tempProf != null) {
+                if (upTemp) {
+                    profiles.add(tempProf);
+                    print("Added temperature profile with " + tempProf.samples.size() + " samples");
+                }
 
-						FSMState newState = onSalinityProfile(salProf);
-						if (newState != null)
-							return newState;
-					}
-				}
+                FSMState newState = onTemperatureProfile(tempProf);
+                if (newState != null)
+                    return newState;
+            }
 
-				if (isUnderwater())
-					return this::descend;
-				else if (align)
-					return this::align;
-				else
-					return this::dive;
-			}
+            if (salProf != null) {
+                if (upSal) {
+                    profiles.add(salProf);
+                    print("Added salinity profile with " + salProf.samples.size() + " samples");
+                }
 
-		} else
-			return this::ascend;
+                FSMState newState = onSalinityProfile(salProf);
+                if (newState != null)
+                    return newState;
+            }
+        }
 
+        if (isUnderwater())
+            return this::descend;
+        else if (align)
+            return this::align;
+        else
+            return this::dive;
 	}
 
 	/**
