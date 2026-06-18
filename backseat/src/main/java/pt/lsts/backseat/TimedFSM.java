@@ -29,7 +29,12 @@ public class TimedFSM extends FSMController {
     }
 
 	protected void printException(Exception e) {
-		printError("Exception: " + e.getMessage());
+		printException("", e);
+	}
+
+	protected void printException(String msg, Exception e) {
+		String msgTxt = msg == null || msg.isEmpty() ? "" : msg + " : ";
+		printError("Exception: " + msgTxt + e.getMessage());
 		String trace = java.util.Arrays.toString(e.getStackTrace());
 		printError("Trace: " + trace);
 	}
