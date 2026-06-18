@@ -363,7 +363,7 @@ public class SoiExecutive extends TimedFSM {
 	
 	private ArrayList<SoiCommand> splitSettings(SoiCommand cmd, int length) {
 		TupleList settings = cmd.settings;
-		List<String> keys = settings.keys().stream().collect(Collectors.toList());
+		List<String> keys = new ArrayList<>(settings.keys());
 		Collections.sort(keys);
 		
 		ArrayList<SoiCommand> cmds = new ArrayList<>();
