@@ -876,7 +876,7 @@ public class SoiExecutive extends TimedFSM {
 		if (offlineForTooLong()) {
 			String err = "Offline for too long (" + secs_no_comms + ")";
 			printError(err);
-			txtMessages.add("ERROR: " + err);
+			txtMessages.add("WARN: " + err);
 			return this::surface_to_report_error;
 		}
 
