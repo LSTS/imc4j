@@ -118,7 +118,7 @@ public class SoiExecutive extends TimedFSM {
 	 */
 	public SoiExecutive() {
 		setPlanName(SOI_PLAN_ID);
-		setDeadline(new Date(System.currentTimeMillis() + timeout * 60 * 1000));
+		setDeadline(new Date(System.currentTimeMillis() + timeout * 60 * 1000L));
 		state = this::idleAtSurface;
 	}
 
