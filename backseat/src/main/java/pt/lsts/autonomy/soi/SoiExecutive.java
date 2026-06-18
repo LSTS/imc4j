@@ -370,7 +370,11 @@ public class SoiExecutive extends TimedFSM {
 		SoiCommand clone = null;
 		try {
 			clone = (SoiCommand) SoiCommand.deserialize(cmd.serialize());			
-		} catch (Exception e) {	}
+		} catch (Exception e) {
+			print("Error while splitting settings " + e.getMessage());
+			return cmds;
+		}
+
 		clone.settings = new TupleList();
 		
 		for (int i = 0; i < keys.size(); i++) {
@@ -383,7 +387,10 @@ public class SoiExecutive extends TimedFSM {
 				cmds.add(clone);
 				try {
 					clone = (SoiCommand) SoiCommand.deserialize(cmd.serialize());					
-				} catch (Exception e) { }
+				} catch (Exception e) {
+					print("Error while splitting settings " + e.getMessage());
+					return new ArrayList<>();
+				}
 				
 				clone.settings = new TupleList();
 				clone.settings.set(key, cmd.settings.get(key));
