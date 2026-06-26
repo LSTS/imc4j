@@ -44,7 +44,7 @@ import pt.lsts.imc4j.util.WGS84Utilities;
 
 public abstract class BackSeatDriver extends TcpClient {
 
-	protected LinkedHashMap<Integer, Message> state = new LinkedHashMap<>();
+	protected final LinkedHashMap<Integer, Message> state = new LinkedHashMap<>();
 	protected long startCommandTime = 0;
 	protected boolean paused = true;
 	protected boolean  finished = false;
