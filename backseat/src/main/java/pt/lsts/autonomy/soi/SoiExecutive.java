@@ -864,7 +864,9 @@ public class SoiExecutive extends TimedFSM {
 		VehicleMedium medium = get(VehicleMedium.class);
 
 		// arrived at surface
-		if (medium != null && medium.medium != MEDIUM.VM_UNDERWATER) {
+		EstimatedState estState = get(EstimatedState.class);
+		if (medium != null && medium.medium != MEDIUM.VM_UNDERWATER
+				&& estState.depth >= 0 && estState.depth < 0.8) { // double check if nearing the surface
 			print("Starting communications.");
 			secs_no_comms = 0;
 			count_secs = 0;
@@ -888,7 +890,9 @@ public class SoiExecutive extends TimedFSM {
 
 		VehicleMedium medium = get(VehicleMedium.class);
 		// arrived at surface
-		if (medium != null && medium.medium != MEDIUM.VM_UNDERWATER) {
+		EstimatedState estState = get(EstimatedState.class);
+		if (medium != null && medium.medium != MEDIUM.VM_UNDERWATER
+				&& estState.depth >= 0 && estState.depth < 0.8) { // double check if nearing the surface
 			print("Now at surface, starting communications.");
 			double[] pos = WGS84Utilities.toLatLonDepth(get(EstimatedState.class));
 			setLocation(pos[0], pos[1]);
